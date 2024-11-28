@@ -18,7 +18,7 @@ export function HowItWorks({ language }: HowItWorksProps) {
       icon: ClipboardCheck,
       title: { en: 'Fill out the form', ru: 'Заполните форму' },
       description: { 
-        en: 'Enter your booking details and preferences.',
+        en: 'Enter your boooking details and preferences.',
         ru: 'Введите данные для бронирования и ваши предпочтения.'
       }
     },
