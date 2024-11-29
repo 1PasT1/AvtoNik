@@ -15,8 +15,8 @@ export function CarsPage({ language }: CarsPageProps) {
   useEffect(() => {
     const loadCars = async () => {
       try {
-        const data = await fetchCars();
-        setCars(data.cars);
+        const fetchedCars = await fetchCars();
+        setCars(fetchedCars);
       } catch (err) {
         setError(language === 'English' 
           ? 'Unable to load car data. Please try again later.' 

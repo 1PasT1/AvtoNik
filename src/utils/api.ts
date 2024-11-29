@@ -15,8 +15,17 @@ export async function fetchCars(): Promise<Car[]> {
     }
     
     const cars: Car[] = data.map((car: any) => ({
-      ...car,
-      id: car.id.toString()
+      id: car.id.toString(),
+      name: car.name,
+      price: car.price,
+      image: car.image,
+      category: car.category,
+      transmission: car.transmission,
+      seats: car.seats,
+      fuelType: car.fuelType,
+      description: car.description,
+      gallery: car.gallery,
+      year: car.year
     }));
     
     return cars;

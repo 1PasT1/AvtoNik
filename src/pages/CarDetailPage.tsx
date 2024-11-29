@@ -14,14 +14,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { format } from 'date-fns';
+import { format, differenceInDays, startOfDay } from 'date-fns';
 import { CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Car } from '@/types/car';
 import { DateRange } from 'react-day-picker';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from "@/hooks/use-toast";
-import { fetchCars } from '@/utils/api';
+import { fetchCars, sendInquiry } from '@/utils/api';
 
 export function CarDetailPage() {
   const params = useParams<{ id: string }>();
@@ -38,6 +38,11 @@ export function CarDetailPage() {
     email: '',
     message: '',
   });
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [totalPrice, setTotalPrice] = useState<number | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -45,17 +50,14 @@ export function CarDetailPage() {
       if (params.id) {
         try {
           const cars = await fetchCars();
-          if (Array.isArray(cars)) {
-            const carData = cars.find((c: Car) => c.id.toString() === params.id);
-            if (carData) {
-              setCar(carData);
-            } else {
-              throw new Error('Car not found');
-            }
+          const carData = cars.find((c: Car) => c.id.toString() === params.id);
+          if (carData) {
+            setCar(carData);
           } else {
-            throw new Error('Invalid data structure received from API');
+            throw new Error('Car not found');
           }
         } catch (err) {
+          console.error('Error fetching car data:', err);
           setError(language === 'English' 
             ? `Failed to load car data. Error: ${err instanceof Error ? err.message : 'Unknown error'}` 
             : `Не удалось загрузить данные об автомобиле. Ошибка: ${err instanceof Error ? err.message : 'Неизвестная ошибка'}`);
@@ -66,6 +68,15 @@ export function CarDetailPage() {
     };
     fetchCarDetails();
   }, [params.id, language]);
+
+  useEffect(() => {
+    if (car && dateRange?.from && dateRange?.to) {
+      const days = differenceInDays(dateRange.to, dateRange.from) + 1;
+      setTotalPrice(days * car.price);
+    } else {
+      setTotalPrice(null);
+    }
+  }, [car, dateRange]);
 
   const handlePrevImage = () => {
     setCurrentImageIndex((prevIndex) => 
@@ -86,33 +97,50 @@ export function CarDetailPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    setFormErrors(prev => ({ ...prev, [name]: '' }));
+  };
+
+  const validateForm = (): boolean => {
+    const errors: { [key: string]: string } = {};
+    if (!formData.firstName.trim()) {
+      errors.firstName = language === 'English' ? 'First name is required' : 'Имя обязательно';
+    }
+    if (!formData.lastName.trim()) {
+      errors.lastName = language === 'English' ? 'Last name is required' : 'Фамилия обязательна';
+    }
+    if (!formData.email.trim()) {
+      errors.email = language === 'English' ? 'Email is required' : 'Email обязателен';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = language === 'English' ? 'Email is invalid' : 'Неверный формат email';
+    }
+    if (!dateRange?.from || !dateRange?.to) {
+      errors.dateRange = language === 'English' ? 'Please select a date range' : 'Выберите период аренды';
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setSubmitSuccess(false);
+    setSubmitError(null);
+
+    if (!validateForm()) {
+      setSubmitError(language === 'English' ? 'Please fill in all required fields.' : 'Пожалуйста, заполните все обязательные поля.');
+      return;
+    }
+
+    setIsSubmitting(true);
     try {
-      const response = await fetch('https://autonikapi.vercel.app/api/send-mail', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          carId: car?.id,
-          dateFrom: dateRange?.from?.toISOString(),
-          dateTo: dateRange?.to?.toISOString(),
-        }),
+      await sendInquiry({
+        ...formData,
+        carId: car?.id,
+        dateFrom: dateRange?.from?.toISOString(),
+        dateTo: dateRange?.to?.toISOString(),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to send inquiry');
-      }
-
-      toast({
-        title: language === 'English' ? 'Inquiry Sent' : 'Запрос отправлен',
-        description: language === 'English' ? 'We will contact you soon.' : 'Мы свяжемся с вами в ближайшее время.',
-      });
-
+      setSubmitSuccess(true);
       setFormData({
         firstName: '',
         lastName: '',
@@ -121,13 +149,14 @@ export function CarDetailPage() {
       });
       setDateRange(undefined);
     } catch (error) {
-      toast({
-        title: language === 'English' ? 'Error' : 'Ошибка',
-        description: language === 'English' ? 'Failed to send inquiry. Please try again.' : 'Не удалось отправить запрос. Пожалуйста, попробуйте еще раз.',
-        variant: 'destructive',
-      });
+      console.error('Error sending inquiry:', error);
+      setSubmitError(language === 'English' ? 'Failed to send inquiry. Please try again.' : 'Не удалось отправить запрос. Пожалуйста, попробуйте еще раз.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  const disabledDays = { before: startOfDay(new Date()) };
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
@@ -223,7 +252,27 @@ export function CarDetailPage() {
                       <Label>{language === 'English' ? 'Seats' : 'Места'}</Label>
                       <p>{car.seats}</p>
                     </div>
+                    <div>
+                      <Label>{language === 'English' ? 'Year' : 'Год выпуска'}</Label>
+                      <p>{car.year}</p>
+                    </div>
                   </div>
+                  {submitSuccess && (
+                    <Alert className="mb-4">
+                      <AlertTitle>{language === 'English' ? 'Success' : 'Успех'}</AlertTitle>
+                      <AlertDescription>
+                        {language === 'English' 
+                          ? 'Your inquiry has been sent successfully. We will contact you soon.' 
+                          : 'Ваш запрос успешно отправлен. Мы свяжемся с вами в ближайшее время.'}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  {submitError && (
+                    <Alert variant="destructive" className="mb-4">
+                      <AlertTitle>{language === 'English' ? 'Error' : 'Ошибка'}</AlertTitle>
+                      <AlertDescription>{submitError}</AlertDescription>
+                    </Alert>
+                  )}
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="dateRange">{language === 'English' ? 'Rental Period' : 'Период аренды'}</Label>
@@ -253,13 +302,15 @@ export function CarDetailPage() {
                           <Calendar
                             initialFocus
                             mode="range"
-                            defaultMonth={dateRange?.from}
+                            defaultMonth={new Date()}
                             selected={dateRange}
                             onSelect={setDateRange}
                             numberOfMonths={2}
+                            disabled={disabledDays}
                           />
                         </PopoverContent>
                       </Popover>
+                      {formErrors.dateRange && <p className="text-red-500 text-sm mt-1">{formErrors.dateRange}</p>}
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
@@ -271,6 +322,7 @@ export function CarDetailPage() {
                           onChange={handleInputChange}
                           required
                         />
+                        {formErrors.firstName && <p className="text-red-500 text-sm">{formErrors.firstName}</p>}
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="lastName">{language === 'English' ? 'Last Name' : 'Фамилия'}</Label>
@@ -281,6 +333,7 @@ export function CarDetailPage() {
                           onChange={handleInputChange}
                           required
                         />
+                        {formErrors.lastName && <p className="text-red-500 text-sm">{formErrors.lastName}</p>}
                       </div>
                     </div>
                     <div className="space-y-2">
@@ -293,19 +346,26 @@ export function CarDetailPage() {
                         onChange={handleInputChange}
                         required
                       />
+                      {formErrors.email && <p className="text-red-500 text-sm">{formErrors.email}</p>}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="message">{language === 'English' ? 'Message' : 'Сообщение'}</Label>
+                      <Label htmlFor="message">{language === 'English' ? 'Message (Optional)' : 'Сообщение (Необязательно)'}</Label>
                       <Textarea
                         id="message"
                         name="message"
                         value={formData.message}
                         onChange={handleInputChange}
-                        required
                       />
                     </div>
-                    <Button type="submit" className="w-full">
-                      {language === 'English' ? 'Send Inquiry' : 'Отправить запрос'}
+                    {totalPrice !== null && (
+                      <div className="text-lg font-semibold text-center mb-4">
+                        {language === 'English' ? 'Total Price:' : 'Общая стоимость:'} ${totalPrice.toFixed(2)}
+                      </div>
+                    )}
+                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                      {isSubmitting 
+                        ? (language === 'English' ? 'Sending...' : 'Отправка...') 
+                        : (language === 'English' ? 'Send Inquiry' : 'Отправить запрос')}
                     </Button>
                   </form>
                 </CardContent>
