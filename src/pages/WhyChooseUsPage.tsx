@@ -1,4 +1,3 @@
-import React from 'react';
 import { WhyChooseUs } from '../components/WhyChooseUs';
 
 interface WhyChooseUsPageProps {
