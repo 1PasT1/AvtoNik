@@ -45,10 +45,10 @@ export async function sendInquiry(formData: any): Promise<Response> {
       firstName: formData.firstName,
       lastName: formData.lastName,
       email: formData.email,
-      phone: formData.phoneNumber,
-      pickupdate: formData.dateFrom,
-      dropoffdate: formData.dateTo,
-      carid: formData.carId,
+      phone: formData.phone,
+      pickupdate: formData.pickupdate,
+      dropoffdate: formData.dropoffdate,
+      carid: formData.carid,
       // message: formData.message
     })
   });

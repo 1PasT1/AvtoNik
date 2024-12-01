@@ -167,9 +167,9 @@ export function CarDetailPage() {
 
     setIsSubmitting(true);
     try {
-      await sendInquiry({
+      const response = await sendInquiry({
         ...formData,
-        phoneNumber: `${formData.countryCode}${formData.phoneNumber}`,
+        phoneNumber: formData.phoneNumber,
         carId: car?.id,
         dateFrom: dateRange?.from?.toISOString(),
         dateTo: dateRange?.to?.toISOString(),
@@ -187,7 +187,11 @@ export function CarDetailPage() {
       setDateRange(undefined);
     } catch (error) {
       console.error('Error sending inquiry:', error);
-      setSubmitError(language === 'English' ? 'Failed to send inquiry. Please try again.' : 'Не удалось отправить запрос. Пожалуйста, попробуйте еще раз.');
+      setSubmitError(
+        language === 'English' 
+          ? `Failed to send inquiry. Please try again. Error: ${error instanceof Error ? error.message : 'Unknown error'}`
+          : `Не удалось отправить запрос. Пожалуйста, попробуйте еще раз. Ошибка: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -254,7 +258,7 @@ export function CarDetailPage() {
                     key={index}
                     src={image}
                     alt={`${car.name} view ${index + 1}`}
-                    className={`w-[calc(20%-0.4rem)] h-16 object-cover rounded-lg cursor-pointer ${
+                    className={`w-[calc(20%-0.4rem)] h-17 object-cover rounded-lg cursor-pointer ${
                       index === currentImageIndex ? 'ring-2 ring-orange-500' : ''
                     }`}
                     onClick={() => setCurrentImageIndex(index)}
