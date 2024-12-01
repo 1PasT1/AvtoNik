@@ -50,7 +50,7 @@ export function WhyChooseUs({ language }: WhyChooseUsProps) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-center">
           <div>
             <img
-              src="src/assets/G-class.png"
+              src="/assets/G-class.png"
               alt={
                 language === "English"
                   ? "Mercedes G-Class"

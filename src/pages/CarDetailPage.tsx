@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Navbar } from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
 import {
@@ -44,6 +44,7 @@ const countryCodes = [
 export function CarDetailPage() {
   const params = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [car, setCar] = useState<Car | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
@@ -63,6 +64,10 @@ export function CarDetailPage() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [totalPrice, setTotalPrice] = useState<number | null>(null);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   useEffect(() => {
     const fetchCarDetails = async () => {
@@ -259,7 +264,7 @@ export function CarDetailPage() {
                     key={index}
                     src={image}
                     alt={`${car.name} view ${index + 1}`}
-                    className={`w-[calc(20%-0.4rem)] h-17 object-cover rounded-lg cursor-pointer ${
+                    className={`w-[calc(20%-0.4rem)] h-16 object-cover rounded-lg cursor-pointer ${
                       index === currentImageIndex ? 'ring-2 ring-orange-500' : ''
                     }`}
                     onClick={() => setCurrentImageIndex(index)}

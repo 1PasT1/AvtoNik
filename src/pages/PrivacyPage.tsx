@@ -1,9 +1,16 @@
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 interface PrivacyPageProps {
   language: string;
 }
 
 export function PrivacyPage({ language }: PrivacyPageProps) {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
   const content = {
     English: {
       title: "Privacy Policy",
