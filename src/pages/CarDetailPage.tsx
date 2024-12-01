@@ -167,14 +167,15 @@ export function CarDetailPage() {
 
     setIsSubmitting(true);
     try {
-      const response = await sendInquiry({
+      await sendInquiry({
         ...formData,
-        phoneNumber: formData.phoneNumber,
+        phoneNumber: formData.phoneNumber, 
         carId: car?.id,
         dateFrom: dateRange?.from?.toISOString(),
         dateTo: dateRange?.to?.toISOString(),
       });
 
+      console.log('Inquiry sent successfully');
       setSubmitSuccess(true);
       setFormData({
         firstName: '',
