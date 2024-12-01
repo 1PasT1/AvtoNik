@@ -6,6 +6,7 @@ import { HomePage } from "./pages/HomePage";
 import { PrivacyPage } from "./pages/PrivacyPage";
 import { TermsPage } from "./pages/TermsPage";
 import { CarDetailPage } from "./pages/CarDetailPage";
+import { Analytics } from '@vercel/analytics/react';
 
 function App() {
   const [language, setLanguage] = useState("English");
@@ -25,6 +26,7 @@ function App() {
         </Routes>
       </main>
       <Footer language={language} />
+      <Analytics />
     </div>
   );
 }
