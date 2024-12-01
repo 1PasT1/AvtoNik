@@ -23,7 +23,7 @@ export function HeroSection({ language }: HeroSectionProps) {
             </div>
             <div className="relative">
                 <img
-                  src="./public/SUV.png"
+                  src="/SUV.png"
                   alt={
                     language === "English"
                       ? "Orange Jeep Wrangler"
