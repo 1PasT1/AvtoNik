@@ -45,11 +45,11 @@ export async function sendInquiry(formData: any): Promise<Response> {
       firstName: formData.firstName,
       lastName: formData.lastName,
       email: formData.email,
-      phoneNumber: formData.phoneNumber,
-      carId: formData.carId,
-      dateFrom: formData.dateFrom,
-      dateTo: formData.dateTo,
-      message: formData.message
+      phone: formData.phoneNumber,
+      pickupdate: formData.dateFrom,
+      dropoffdate: formData.dateTo,
+      carid: formData.carId,
+      // message: formData.message
     })
   });
 
@@ -60,4 +60,6 @@ export async function sendInquiry(formData: any): Promise<Response> {
 
   return response;
 }
+
+
 
