@@ -39,11 +39,22 @@ export async function sendInquiry(formData: any): Promise<Response> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'Accept': 'application/json'
     },
-    body: JSON.stringify(formData),
+    body: JSON.stringify({
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      phoneNumber: formData.phoneNumber,
+      carId: formData.carId,
+      dateFrom: formData.dateFrom,
+      dateTo: formData.dateTo,
+      message: formData.message
+    })
   });
 
   if (!response.ok) {
+    console.error('Server response:', await response.text());
     throw new Error('Failed to send inquiry');
   }
 

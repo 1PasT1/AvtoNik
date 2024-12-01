@@ -14,14 +14,32 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format, differenceInDays, startOfDay } from 'date-fns';
 import { CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Car } from '@/types/car';
 import { DateRange } from 'react-day-picker';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { useToast } from "@/hooks/use-toast";
 import { fetchCars, sendInquiry } from '@/utils/api';
+
+const countryCodes = [
+  { code: '+995', country: 'Georgia', flag: '🇬🇪' },
+  { code: '+1', country: 'USA', flag: '🇺🇸' },
+  { code: '+44', country: 'UK', flag: '🇬🇧' },
+  { code: '+49', country: 'Germany', flag: '🇩🇪' },
+  { code: '+7', country: 'Russia', flag: '🇷🇺' },
+  { code: '+33', country: 'France', flag: '🇫🇷' },
+  { code: '+39', country: 'Italy', flag: '🇮🇹' },
+  { code: '+34', country: 'Spain', flag: '🇪🇸' },
+  { code: '+81', country: 'Japan', flag: '🇯🇵' },
+  { code: '+86', country: 'China', flag: '🇨🇳' },
+  { code: '+91', country: 'India', flag: '🇮🇳' },
+  { code: '+55', country: 'Brazil', flag: '🇧🇷' },
+  { code: '+61', country: 'Australia', flag: '🇦🇺' },
+  { code: '+52', country: 'Mexico', flag: '🇲🇽' },
+  { code: '+82', country: 'South Korea', flag: '🇰🇷' },
+];
 
 export function CarDetailPage() {
   const params = useParams<{ id: string }>();
@@ -36,6 +54,8 @@ export function CarDetailPage() {
     firstName: '',
     lastName: '',
     email: '',
+    countryCode: '+995',
+    phoneNumber: '',
     message: '',
   });
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
@@ -43,7 +63,6 @@ export function CarDetailPage() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [totalPrice, setTotalPrice] = useState<number | null>(null);
-  const { toast } = useToast();
 
   useEffect(() => {
     const fetchCarDetails = async () => {
@@ -96,8 +115,18 @@ export function CarDetailPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === 'phoneNumber') {
+      const numericValue = value.replace(/[^0-9]/g, '');
+      setFormData(prev => ({ ...prev, [name]: numericValue }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
     setFormErrors(prev => ({ ...prev, [name]: '' }));
+  };
+
+  const handleCountryCodeChange = (value: string) => {
+    setFormData(prev => ({ ...prev, countryCode: value }));
+    setFormErrors(prev => ({ ...prev, phoneNumber: '' }));
   };
 
   const validateForm = (): boolean => {
@@ -112,6 +141,11 @@ export function CarDetailPage() {
       errors.email = language === 'English' ? 'Email is required' : 'Email обязателен';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       errors.email = language === 'English' ? 'Email is invalid' : 'Неверный формат email';
+    }
+    if (!formData.phoneNumber.trim()) {
+      errors.phoneNumber = language === 'English' ? 'Phone number is required' : 'Номер телефона обязателен';
+    } else if (formData.phoneNumber.length < 9 || formData.phoneNumber.length > 14) {
+      errors.phoneNumber = language === 'English' ? 'Phone number must be between 9 and 14 digits' : 'Номер телефона должен содержать от 9 до 14 цифр';
     }
     if (!dateRange?.from || !dateRange?.to) {
       errors.dateRange = language === 'English' ? 'Please select a date range' : 'Выберите период аренды';
@@ -135,6 +169,7 @@ export function CarDetailPage() {
     try {
       await sendInquiry({
         ...formData,
+        phoneNumber: `${formData.countryCode}${formData.phoneNumber}`,
         carId: car?.id,
         dateFrom: dateRange?.from?.toISOString(),
         dateTo: dateRange?.to?.toISOString(),
@@ -145,6 +180,8 @@ export function CarDetailPage() {
         firstName: '',
         lastName: '',
         email: '',
+        countryCode: '+995',
+        phoneNumber: '',
         message: '',
       });
       setDateRange(undefined);
@@ -182,8 +219,8 @@ export function CarDetailPage() {
         ) : loading ? (
           <Skeleton className="h-[400px] w-full" />
         ) : car ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <div className="relative">
+          <div className="flex flex-wrap gap-8">
+            <div className="w-full lg:w-[calc(50%-1rem)]">
               <div className="relative h-[400px]">
                 <img
                   src={car.gallery[currentImageIndex]}
@@ -211,13 +248,13 @@ export function CarDetailPage() {
                   </Button>
                 </div>
               </div>
-              <div className="grid grid-cols-5 gap-4 mt-4">
+              <div className="flex flex-wrap gap-2 mt-4">
                 {car.gallery.map((image, index) => (
                   <img
                     key={index}
                     src={image}
                     alt={`${car.name} view ${index + 1}`}
-                    className={`w-full h-20 object-cover rounded-lg cursor-pointer ${
+                    className={`w-[calc(20%-0.4rem)] h-16 object-cover rounded-lg cursor-pointer ${
                       index === currentImageIndex ? 'ring-2 ring-orange-500' : ''
                     }`}
                     onClick={() => setCurrentImageIndex(index)}
@@ -226,7 +263,7 @@ export function CarDetailPage() {
               </div>
             </div>
             
-            <div>
+            <div className="w-full lg:w-[calc(50%-1rem)]">
               <Card>
                 <CardHeader>
                   <CardTitle>{car.name}</CardTitle>
@@ -235,26 +272,26 @@ export function CarDetailPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div>
-                      <Label>{language === 'English' ? 'Category' : 'Категория'}</Label>
-                      <p>{car.category}</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+                    <div className="space-y-2">
+                      <Label className="block font-medium">{language === 'English' ? 'Category' : 'Категория'}</Label>
+                      <p className="text-gray-600">{car.category}</p>
                     </div>
-                    <div>
-                      <Label>{language === 'English' ? 'Transmission' : 'Коробка передач'}</Label>
-                      <p>{car.transmission}</p>
+                    <div className="space-y-2">
+                      <Label className="block font-medium">{language === 'English' ? 'Transmission' : 'Коробка передач'}</Label>
+                      <p className="text-gray-600">{car.transmission}</p>
                     </div>
-                    <div>
-                      <Label>{language === 'English' ? 'Fuel Type' : 'Тип топлива'}</Label>
-                      <p>{car.fuelType}</p>
+                    <div className="space-y-2">
+                      <Label className="block font-medium">{language === 'English' ? 'Fuel Type' : 'Тип топлива'}</Label>
+                      <p className="text-gray-600">{car.fuelType}</p>
                     </div>
-                    <div>
-                      <Label>{language === 'English' ? 'Seats' : 'Места'}</Label>
-                      <p>{car.seats}</p>
+                    <div className="space-y-2">
+                      <Label className="block font-medium">{language === 'English' ? 'Seats' : 'Места'}</Label>
+                      <p className="text-gray-600">{car.seats}</p>
                     </div>
-                    <div>
-                      <Label>{language === 'English' ? 'Year' : 'Год выпуска'}</Label>
-                      <p>{car.year}</p>
+                    <div className="space-y-2">
+                      <Label className="block font-medium">{language === 'English' ? 'Year' : 'Год выпуска'}</Label>
+                      <p className="text-gray-600">{car.year}</p>
                     </div>
                   </div>
                   {submitSuccess && (
@@ -312,8 +349,8 @@ export function CarDetailPage() {
                       </Popover>
                       {formErrors.dateRange && <p className="text-red-500 text-sm mt-1">{formErrors.dateRange}</p>}
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
+                    <div className="flex flex-wrap gap-4">
+                      <div className="w-full sm:w-[calc(50%-0.5rem)] min-w-[200px]">
                         <Label htmlFor="firstName">{language === 'English' ? 'First Name' : 'Имя'}</Label>
                         <Input
                           id="firstName"
@@ -324,7 +361,7 @@ export function CarDetailPage() {
                         />
                         {formErrors.firstName && <p className="text-red-500 text-sm">{formErrors.firstName}</p>}
                       </div>
-                      <div className="space-y-2">
+                      <div className="w-full sm:w-[calc(50%-0.5rem)] min-w-[200px]">
                         <Label htmlFor="lastName">{language === 'English' ? 'Last Name' : 'Фамилия'}</Label>
                         <Input
                           id="lastName"
@@ -347,6 +384,39 @@ export function CarDetailPage() {
                         required
                       />
                       {formErrors.email && <p className="text-red-500 text-sm">{formErrors.email}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phoneNumber">{language === 'English' ? 'Phone Number' : 'Номер телефона'}</Label>
+                      <div className="flex flex-col sm450:flex-row gap-2">
+                        <Select value={formData.countryCode} onValueChange={handleCountryCodeChange}>
+                          <SelectTrigger className="w-full sm450:w-[140px] flex-shrink-0">
+                            <SelectValue>
+                              {countryCodes.find(c => c.code === formData.countryCode)?.flag} {formData.countryCode}
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {countryCodes.map((country) => (
+                              <SelectItem key={country.code} value={country.code}>
+                                <span className="mr-2">{country.flag}</span>
+                                {country.code} ({country.country})
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Input
+                          id="phoneNumber"
+                          name="phoneNumber"
+                          type="tel"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          value={formData.phoneNumber}
+                          onChange={handleInputChange}
+                          required
+                          className="flex-1"
+                          placeholder={language === 'English' ? '123456789' : '123456789'}
+                        />
+                      </div>
+                      {formErrors.phoneNumber && <p className="text-red-500 text-sm">{formErrors.phoneNumber}</p>}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="message">{language === 'English' ? 'Message (Optional)' : 'Сообщение (Необязательно)'}</Label>

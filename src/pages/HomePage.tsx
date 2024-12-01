@@ -4,7 +4,7 @@ import { CarListing } from '../components/CarListing';
 import { HowItWorks } from '../components/HowItWorks';
 import { WhyChooseUs } from '../components/WhyChooseUs';
 import { fetchCars } from '../utils/api';
-import { Car, CarApiResponse } from '../types/car';
+import { Car} from '../types/car';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface HomePageProps {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { CarListing } from '../components/CarListing';
 import { fetchCars } from '../utils/api';
 import { Car } from '../types/car';
