@@ -1,11 +1,7 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -15,8 +11,18 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Car, ShuffleIcon as GearShift, Fuel, Users, Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
-import type { Car as CarType } from '@/types/car';
+import {
+  Car,
+  ShuffleIcon as GearShift,
+  Fuel,
+  Users,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
+import type { Car as CarType } from "@/types/car";
 
 interface CarListingProps {
   cars: CarType[];
@@ -24,20 +30,24 @@ interface CarListingProps {
   isLoading: boolean;
 }
 
-export function CarListing({ cars: initialCars, language, isLoading }: CarListingProps) {
+export function CarListing({
+  cars: initialCars,
+  language,
+  isLoading,
+}: CarListingProps) {
   const [cars, setCars] = useState<CarType[]>([]);
-  const [sortBy, setSortBy] = useState('price-low');
+  const [sortBy, setSortBy] = useState("price-low");
   const [filters, setFilters] = useState({
-    gearType: '',
-    fuelType: '',
-    priceFrom: '',
-    priceTo: '',
-    vehicleClass: '',
+    gearType: "",
+    fuelType: "",
+    priceFrom: "",
+    priceTo: "",
+    vehicleClass: "",
   });
   const [isFilterApplied, setIsFilterApplied] = useState(false);
   const [hasFilterChanges, setHasFilterChanges] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const carsPerPage = 6;
+  const carsPerPage = 8;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -49,8 +59,8 @@ export function CarListing({ cars: initialCars, language, isLoading }: CarListin
 
   const sortCars = (carsToSort: CarType[], sortType: string) => {
     return [...carsToSort].sort((a, b) => {
-      if (sortType === 'price-low') return a.price - b.price;
-      if (sortType === 'price-high') return b.price - a.price;
+      if (sortType === "price-low") return a.price - b.price;
+      if (sortType === "price-high") return b.price - a.price;
       return 0;
     });
   };
@@ -63,7 +73,7 @@ export function CarListing({ cars: initialCars, language, isLoading }: CarListin
   };
 
   const handleFilterChange = (key: string, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
+    setFilters((prev) => ({ ...prev, [key]: value }));
     setHasFilterChanges(true);
   };
 
@@ -71,19 +81,31 @@ export function CarListing({ cars: initialCars, language, isLoading }: CarListin
     let filteredCars = [...initialCars];
 
     if (filters.gearType) {
-      filteredCars = filteredCars.filter(car => car.transmission.toLowerCase() === filters.gearType.toLowerCase());
+      filteredCars = filteredCars.filter(
+        (car) =>
+          car.transmission.toLowerCase() === filters.gearType.toLowerCase()
+      );
     }
     if (filters.fuelType) {
-      filteredCars = filteredCars.filter(car => car.fuelType.toLowerCase() === filters.fuelType.toLowerCase());
+      filteredCars = filteredCars.filter(
+        (car) => car.fuelType.toLowerCase() === filters.fuelType.toLowerCase()
+      );
     }
     if (filters.priceFrom) {
-      filteredCars = filteredCars.filter(car => car.price >= parseInt(filters.priceFrom));
+      filteredCars = filteredCars.filter(
+        (car) => car.price >= parseInt(filters.priceFrom)
+      );
     }
     if (filters.priceTo) {
-      filteredCars = filteredCars.filter(car => car.price <= parseInt(filters.priceTo));
+      filteredCars = filteredCars.filter(
+        (car) => car.price <= parseInt(filters.priceTo)
+      );
     }
     if (filters.vehicleClass) {
-      filteredCars = filteredCars.filter(car => car.category.toLowerCase() === filters.vehicleClass.toLowerCase());
+      filteredCars = filteredCars.filter(
+        (car) =>
+          car.category.toLowerCase() === filters.vehicleClass.toLowerCase()
+      );
     }
 
     const sortedAndFilteredCars = sortCars(filteredCars, sortBy);
@@ -95,11 +117,11 @@ export function CarListing({ cars: initialCars, language, isLoading }: CarListin
 
   const clearFilters = () => {
     setFilters({
-      gearType: '',
-      fuelType: '',
-      priceFrom: '',
-      priceTo: '',
-      vehicleClass: '',
+      gearType: "",
+      fuelType: "",
+      priceFrom: "",
+      priceTo: "",
+      vehicleClass: "",
     });
     const sortedCars = sortCars(initialCars, sortBy);
     setCars(sortedCars);
@@ -145,93 +167,160 @@ export function CarListing({ cars: initialCars, language, isLoading }: CarListin
   );
 
   return (
-    <div className="py-16">
+    <div className="py-8 sm:py-12">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-8">
-          {language === 'English' ? 'Rent a Car, Start Your Journey' : 'Арендуйте автомобиль, начните свое путешествие'}
+        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6">
+          {language === "English"
+            ? "Rent a Car, Start Your Journey"
+            : "Арендуйте автомобиль, начните свое путешествие"}
         </h2>
         <p className="text-center text-gray-600 mb-8">
-          {language === 'English' 
-            ? 'Ready to explore? Rent one of our top-quality cars and start your next journey today!'
-            : 'Готовы к исследованию? Арендуйте один из наших высококачественных автомобилей и начните свое следующее путешествие сегодня!'}
+          {language === "English"
+            ? "Ready to explore? Rent one of our top-quality cars and start your next journey today!"
+            : "Готовы к исследованию? Арендуйте один из наших высококачественных автомобилей и начните свое следующее путешествие сегодня!"}
         </p>
-        
+
         <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          <Select value={filters.gearType} onValueChange={(value) => handleFilterChange('gearType', value)}>
+          <Select
+            value={filters.gearType}
+            onValueChange={(value) => handleFilterChange("gearType", value)}
+          >
             <SelectTrigger>
-              <SelectValue placeholder={language === 'English' ? 'Gear Type' : 'Тип коробки передач'} />
+              <SelectValue
+                placeholder={
+                  language === "English" ? "Gear Type" : "Тип коробки передач"
+                }
+              />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="manual">{language === 'English' ? 'Manual' : 'Механическая'}</SelectItem>
-              <SelectItem value="automatic">{language === 'English' ? 'Automatic' : 'Автоматическая'}</SelectItem>
+              <SelectItem value="manual">
+                {language === "English" ? "Manual" : "Механическая"}
+              </SelectItem>
+              <SelectItem value="automatic">
+                {language === "English" ? "Automatic" : "Автоматическая"}
+              </SelectItem>
             </SelectContent>
           </Select>
-          
-          <Select value={filters.fuelType} onValueChange={(value) => handleFilterChange('fuelType', value)}>
+
+          <Select
+            value={filters.fuelType}
+            onValueChange={(value) => handleFilterChange("fuelType", value)}
+          >
             <SelectTrigger>
-              <SelectValue placeholder={language === 'English' ? 'Fuel Type' : 'Тип топлива'} />
+              <SelectValue
+                placeholder={
+                  language === "English" ? "Fuel Type" : "Тип топлива"
+                }
+              />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="gasoline">{language === 'English' ? 'Gasoline' : 'Бензин'}</SelectItem>
-              <SelectItem value="diesel">{language === 'English' ? 'Diesel' : 'Дизель'}</SelectItem>
-              <SelectItem value="electric">{language === 'English' ? 'Electric' : 'Электро'}</SelectItem>
-              <SelectItem value="hybrid">{language === 'English' ? 'Hybrid' : 'Гибрид'}</SelectItem>
+              <SelectItem value="gasoline">
+                {language === "English" ? "Gasoline" : "Бензин"}
+              </SelectItem>
+              <SelectItem value="diesel">
+                {language === "English" ? "Diesel" : "Дизель"}
+              </SelectItem>
+              <SelectItem value="electric">
+                {language === "English" ? "Electric" : "Электро"}
+              </SelectItem>
+              <SelectItem value="hybrid">
+                {language === "English" ? "Hybrid" : "Гибрид"}
+              </SelectItem>
             </SelectContent>
           </Select>
-          
+
           <div className="flex gap-2">
             <Input
               type="number"
-              placeholder={language === 'English' ? 'Price From' : 'Цена от'}
+              placeholder={language === "English" ? "Price From" : "Цена от"}
               value={filters.priceFrom}
-              onChange={(e) => handleFilterChange('priceFrom', e.target.value)}
+              onChange={(e) => handleFilterChange("priceFrom", e.target.value)}
             />
             <Input
               type="number"
-              placeholder={language === 'English' ? 'Price To' : 'Цена до'}
+              placeholder={language === "English" ? "Price To" : "Цена до"}
               value={filters.priceTo}
-              onChange={(e) => handleFilterChange('priceTo', e.target.value)}
+              onChange={(e) => handleFilterChange("priceTo", e.target.value)}
             />
           </div>
-          
-          <Select value={filters.vehicleClass} onValueChange={(value) => handleFilterChange('vehicleClass', value)}>
+
+          <Select
+            value={filters.vehicleClass}
+            onValueChange={(value) => handleFilterChange("vehicleClass", value)}
+          >
             <SelectTrigger>
-              <SelectValue placeholder={language === 'English' ? 'Vehicle Class' : 'Класс автомобиля'} />
+              <SelectValue
+                placeholder={
+                  language === "English" ? "Vehicle Class" : "Класс автомобиля"
+                }
+              />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="economy">{language === 'English' ? 'Economy' : 'Эконом'}</SelectItem>
-              <SelectItem value="compact">{language === 'English' ? 'Compact' : 'Компактный'}</SelectItem>
-              <SelectItem value="midsize">{language === 'English' ? 'Midsize' : 'Средний'}</SelectItem>
-              <SelectItem value="luxury">{language === 'English' ? 'Luxury' : 'Люкс'}</SelectItem>
-              <SelectItem value="suv">{language === 'English' ? 'SUV' : 'Внедорожник'}</SelectItem>
-              <SelectItem value="electric">{language === 'English' ? 'Electric' : 'Электрический'}</SelectItem>
+              <SelectItem value="economy">
+                {language === "English" ? "Economy" : "Эконом"}
+              </SelectItem>
+              <SelectItem value="compact">
+                {language === "English" ? "Compact" : "Компактный"}
+              </SelectItem>
+              <SelectItem value="midsize">
+                {language === "English" ? "Midsize" : "Средний"}
+              </SelectItem>
+              <SelectItem value="luxury">
+                {language === "English" ? "Luxury" : "Люкс"}
+              </SelectItem>
+              <SelectItem value="suv">
+                {language === "English" ? "SUV" : "Внедорожник"}
+              </SelectItem>
+              <SelectItem value="electric">
+                {language === "English" ? "Electric" : "Электрический"}
+              </SelectItem>
             </SelectContent>
           </Select>
-          
-          <Button onClick={isFilterApplied && !hasFilterChanges ? clearFilters : applyFilters}>
-            {isFilterApplied && !hasFilterChanges 
-              ? (language === 'English' ? 'Clear Filter' : 'Очистить фильтр')
-              : (language === 'English' ? 'Apply Filter' : 'Применить фильтр')}
+
+          <Button
+            onClick={
+              isFilterApplied && !hasFilterChanges ? clearFilters : applyFilters
+            }
+          >
+            {isFilterApplied && !hasFilterChanges
+              ? language === "English"
+                ? "Clear Filter"
+                : "Очистить фильтр"
+              : language === "English"
+              ? "Apply Filter"
+              : "Применить фильтр"}
           </Button>
         </div>
-        
+
         <div className="flex justify-end mb-4">
           <Select value={sortBy} onValueChange={handleSort}>
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder={language === 'English' ? 'Sort by' : 'Сортировать по'} />
+              <SelectValue
+                placeholder={
+                  language === "English" ? "Sort by" : "Сортировать по"
+                }
+              />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="price-low">{language === 'English' ? 'Price: Low to High' : 'Цена: по возрастанию'}</SelectItem>
-              <SelectItem value="price-high">{language === 'English' ? 'Price: High to Low' : 'Цена: по убыванию'}</SelectItem>
+              <SelectItem value="price-low">
+                {language === "English"
+                  ? "Price: Low to High"
+                  : "Цена: по возрастанию"}
+              </SelectItem>
+              <SelectItem value="price-high">
+                {language === "English"
+                  ? "Price: High to Low"
+                  : "Цена: по убыванию"}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {isLoading
-            ? Array(carsPerPage).fill(0).map((_, index) => (
-                <CarSkeleton key={index} />
-              ))
+            ? Array(carsPerPage)
+                .fill(0)
+                .map((_, index) => <CarSkeleton key={index} />)
             : currentCars.map((car) => (
                 <Card key={car.id} className="overflow-hidden">
                   <div className="aspect-video bg-muted flex items-center justify-center">
@@ -244,7 +333,7 @@ export function CarListing({ cars: initialCars, language, isLoading }: CarListin
                   <CardContent className="p-6">
                     <h3 className="text-2xl font-bold mb-4">{car.name}</h3>
                     <p className="text-3xl font-bold text-orange-500 mb-6">
-                      ${car.price}/{language === 'English' ? 'day' : 'день'}
+                      ${car.price}/{language === "English" ? "day" : "день"}
                     </p>
                     <div className="grid grid-cols-2 gap-y-4">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -270,16 +359,15 @@ export function CarListing({ cars: initialCars, language, isLoading }: CarListin
                     </div>
                   </CardContent>
                   <CardFooter className="p-6 pt-0">
-                    <Button 
+                    <Button
                       className="w-full bg-black hover:bg-gray-800 text-white py-3 text-lg"
                       onClick={() => handleRentNow(car.id.toString())}
                     >
-                      {language === 'English' ? 'Rent Now' : 'Арендовать'}
+                      {language === "English" ? "Rent Now" : "Арендовать"}
                     </Button>
                   </CardFooter>
                 </Card>
-              ))
-          }
+              ))}
         </div>
 
         {cars.length > 0 && (
@@ -334,4 +422,7 @@ export function CarListing({ cars: initialCars, language, isLoading }: CarListin
     </div>
   );
 }
+
+
+
 
