@@ -50,6 +50,8 @@ export function CarListing({
   const carsPerPage = 8;
   const navigate = useNavigate();
   const listingRef = useRef<HTMLDivElement>(null);
+  const isInitialMount = useRef(true);
+
 
   useEffect(() => {
     if (!isLoading) {
@@ -59,13 +61,17 @@ export function CarListing({
   }, [isLoading, initialCars, sortBy]);
 
   useEffect(() => {
-    if (listingRef.current) {
-      const yOffset = -125;
-      const y =
-        listingRef.current.getBoundingClientRect().top +
-        window.pageYOffset +
-        yOffset;
-      window.scrollTo({ top: y, behavior: "smooth" });
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+    } else {
+      if (listingRef.current) {
+        const yOffset = -125;
+        const y =
+          listingRef.current.getBoundingClientRect().top +
+          window.pageYOffset +
+          yOffset;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
     }
   }, [currentPage]);
 
