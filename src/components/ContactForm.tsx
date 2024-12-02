@@ -2,19 +2,23 @@ import React, { useState } from 'react';
 import { sendInquiry } from '../utils/api';
 
 interface ContactFormProps {
-  carId: string;
+  carid: string;
   language: string;
 }
 
-export function ContactForm({ carId, language }: ContactFormProps) {
+export function ContactForm({ carid, language }: ContactFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     message: '',
+    countryCode: '',
+    phoneNumber: '',
   });
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [dateRange] = useState<{from: Date | null, to: Date | null} | null>(null);
+  const [totalPrice] = useState<number | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -29,10 +33,19 @@ export function ContactForm({ carId, language }: ContactFormProps) {
     setIsSubmitting(true);
 
     try {
-      await sendInquiry({
-        ...formData,
-        carId,
-      });
+      const inquiryData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: `${formData.countryCode}${formData.phoneNumber}`,
+        pickupdate: dateRange?.from?.toISOString() || '',
+        dropoffdate: dateRange?.to?.toISOString() || '',
+        carid: carid, 
+        message: formData.message,
+        totalPrice: totalPrice || 0,
+      };
+
+      await sendInquiry(inquiryData);
 
       setSubmitStatus('success');
       setFormData({
@@ -40,6 +53,8 @@ export function ContactForm({ carId, language }: ContactFormProps) {
         lastName: '',
         email: '',
         message: '',
+        countryCode: '',
+        phoneNumber: '',
       });
     } catch (error) {
       console.error('Error sending email:', error);
