@@ -454,7 +454,6 @@ export const CarDetailPage: React.FC = () => {
                           onChange={handleInputChange}
                           required
                           className="flex-1"
-                          placeholder={language === 'English' ? '123456789' : '123456789'}
                         />
                       </div>
                       {formErrors.phoneNumber && <p className="text-red-500 text-sm">{formErrors.phoneNumber}</p>}
