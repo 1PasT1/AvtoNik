@@ -23,6 +23,35 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { fetchCars, sendInquiry } from '@/utils/api';
 
+// Add this CSS for the slide-up animation
+const slideUpAnimation = `
+  @keyframes slideUp {
+    from {
+      transform: translate(-50%, 100%);
+      opacity: 0;
+    }
+    to {
+      transform: translate(-50%, 0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideDown {
+    from {
+      transform: translate(-50%, 0);
+      opacity: 1;
+    }
+    to {
+      transform: translate(-50%, 100%);
+      opacity: 0;
+    }
+  }
+
+  .slide-up {
+    animation: slideUp 0.5s ease-out, slideDown 0.5s ease-in 9.5s;
+  }
+`;
+
 const countryCodes = [
   { code: '+995', country: 'Georgia', flag: '🇬🇪' },
   { code: '+1', country: 'USA', flag: '🇺🇸' },
@@ -41,7 +70,7 @@ const countryCodes = [
   { code: '+82', country: 'South Korea', flag: '🇰🇷' },
 ];
 
-export function CarDetailPage() {
+export const CarDetailPage: React.FC = () => {
   const params = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -172,15 +201,21 @@ export function CarDetailPage() {
 
     setIsSubmitting(true);
     try {
-      await sendInquiry({
-        ...formData,
-        phoneNumber: formData.phoneNumber, 
-        carId: car?.id,
-        dateFrom: dateRange?.from?.toISOString(),
-        dateTo: dateRange?.to?.toISOString(),
-      });
+      // Create the inquiry data with exact field names matching backend
+      const inquiryData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: `${formData.countryCode}${formData.phoneNumber}`, // Combine country code and phone
+        pickupdate: dateRange?.from?.toISOString() || '',
+        dropoffdate: dateRange?.to?.toISOString() || '',
+        carid: car?.id || '',
+        message: formData.message,
+        totalPrice: totalPrice || 0,
+      };
 
-      console.log('Inquiry sent successfully');
+      await sendInquiry(inquiryData);
+
       setSubmitSuccess(true);
       setFormData({
         firstName: '',
@@ -192,7 +227,6 @@ export function CarDetailPage() {
       });
       setDateRange(undefined);
     } catch (error) {
-      console.error('Error sending inquiry:', error);
       setSubmitError(
         language === 'English' 
           ? `Failed to send inquiry. Please try again. Error: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -205,8 +239,21 @@ export function CarDetailPage() {
 
   const disabledDays = { before: startOfDay(new Date()) };
 
+  useEffect(() => {
+    if (submitSuccess || submitError) {
+      const timer = setTimeout(() => {
+        setSubmitSuccess(false);
+        setSubmitError(null);
+      }, 10000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [submitSuccess, submitError]);
+
   return (
-    <main className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
+    <>
+      <style>{slideUpAnimation}</style>
+      <main className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
       <Navbar 
         language={language}
         setLanguage={setLanguage}
@@ -304,22 +351,6 @@ export function CarDetailPage() {
                       <p className="text-gray-600">{car.year}</p>
                     </div>
                   </div>
-                  {submitSuccess && (
-                    <Alert className="mb-4">
-                      <AlertTitle>{language === 'English' ? 'Success' : 'Успех'}</AlertTitle>
-                      <AlertDescription>
-                        {language === 'English' 
-                          ? 'Your inquiry has been sent successfully. We will contact you soon.' 
-                          : 'Ваш запрос успешно отправлен. Мы свяжемся с вами в ближайшее время.'}
-                      </AlertDescription>
-                    </Alert>
-                  )}
-                  {submitError && (
-                    <Alert variant="destructive" className="mb-4">
-                      <AlertTitle>{language === 'English' ? 'Error' : 'Ошибка'}</AlertTitle>
-                      <AlertDescription>{submitError}</AlertDescription>
-                    </Alert>
-                  )}
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="dateRange">{language === 'English' ? 'Rental Period' : 'Период аренды'}</Label>
@@ -459,7 +490,24 @@ export function CarDetailPage() {
           </Alert>
         )}
       </div>
-    </main>
+      {submitSuccess && (
+        <Alert className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-green-100 border-green-400 text-green-700 slide-up w-[90%] sm:w-[70%] md:max-w-md">
+          <AlertTitle>{language === 'English' ? 'Success' : 'Успех'}</AlertTitle>
+          <AlertDescription>
+            {language === 'English' 
+              ? 'Your inquiry has been sent successfully. We will contact you soon.' 
+              : 'Ваш запрос успешно отправлен. Мы свяжемся с вами в ближайшее время.'}
+          </AlertDescription>
+        </Alert>
+      )}
+      {submitError && (
+        <Alert variant="destructive" className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-100 border-red-400 text-red-700 slide-up w-[90%] sm:w-[70%] md:max-w-md">
+          <AlertTitle>{language === 'English' ? 'Error' : 'Ошибка'}</AlertTitle>
+          <AlertDescription>{submitError}</AlertDescription>
+        </Alert>
+      )}
+      </main>
+    </>
   );
-}
+};
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -49,6 +49,7 @@ export function CarListing({
   const [currentPage, setCurrentPage] = useState(1);
   const carsPerPage = 8;
   const navigate = useNavigate();
+  const listingRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isLoading) {
@@ -56,6 +57,17 @@ export function CarListing({
       setCars(sortedCars);
     }
   }, [isLoading, initialCars, sortBy]);
+
+  useEffect(() => {
+    if (listingRef.current) {
+      const yOffset = -125;
+      const y =
+        listingRef.current.getBoundingClientRect().top +
+        window.pageYOffset +
+        yOffset;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
+  }, [currentPage]);
 
   const sortCars = (carsToSort: CarType[], sortType: string) => {
     return [...carsToSort].sort((a, b) => {
@@ -146,7 +158,9 @@ export function CarListing({
   const currentCars = cars.slice(indexOfFirstCar, indexOfLastCar);
   const totalPages = Math.ceil(cars.length / carsPerPage);
 
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
 
   const CarSkeleton = () => (
     <Card className="overflow-hidden">
@@ -165,6 +179,21 @@ export function CarListing({
       </CardFooter>
     </Card>
   );
+
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    let startPage = Math.max(1, currentPage - 1);
+    let endPage = Math.min(totalPages, startPage + 3);
+
+    if (endPage - startPage < 3) {
+      startPage = Math.max(1, endPage - 3);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+    return pageNumbers;
+  };
 
   return (
     <div className="py-8 sm:py-12">
@@ -316,6 +345,7 @@ export function CarListing({
           </Select>
         </div>
 
+        <div ref={listingRef} className="h-1" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {isLoading
             ? Array(carsPerPage)
@@ -377,43 +407,43 @@ export function CarListing({
                 variant="outline"
                 onClick={() => paginate(1)}
                 disabled={currentPage === 1}
-                className="mr-1"
+                className="mr-1 h-10 w-10 p-2 max-sm450:hidden max-xs320:h-8 max-xs320:w-8 max-xs320:p-1"
               >
-                <ChevronsLeft className="h-4 w-4" />
+                <ChevronsLeft className="h-4 w-4 max-xs320:h-3 max-xs320:w-3" />
               </Button>
               <Button
                 variant="outline"
                 onClick={() => paginate(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="mr-1"
+                className="mr-1 h-10 w-10 p-2 max-xs320:h-8 max-xs320:w-8 max-xs320:p-1"
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-4 w-4 max-xs320:h-3 max-xs320:w-3" />
               </Button>
-              {Array.from({ length: totalPages }, (_, i) => (
+              {getPageNumbers().map((number) => (
                 <Button
-                  key={i}
-                  variant={currentPage === i + 1 ? "default" : "outline"}
-                  onClick={() => paginate(i + 1)}
-                  className="mx-1"
+                  key={number}
+                  variant={currentPage === number ? "default" : "outline"}
+                  onClick={() => paginate(number)}
+                  className="mx-1 h-10 w-10 p-2 text-sm max-xs320:h-8 max-xs320:w-8 max-xs320:p-1 max-xs320:text-xs"
                 >
-                  {i + 1}
+                  {number}
                 </Button>
               ))}
               <Button
                 variant="outline"
                 onClick={() => paginate(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="ml-1"
+                className="ml-1 h-10 w-10 p-2 max-xs320:h-8 max-xs320:w-8 max-xs320:p-1"
               >
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4 max-xs320:h-3 max-xs320:w-3" />
               </Button>
               <Button
                 variant="outline"
                 onClick={() => paginate(totalPages)}
                 disabled={currentPage === totalPages}
-                className="ml-1"
+                className="ml-1 h-10 w-10 p-2 max-sm450:hidden max-xs320:h-8 max-xs320:w-8 max-xs320:p-1"
               >
-                <ChevronsRight className="h-4 w-4" />
+                <ChevronsRight className="h-4 w-4 max-xs320:h-3 max-xs320:w-3" />
               </Button>
             </nav>
           </div>
@@ -422,7 +452,3 @@ export function CarListing({
     </div>
   );
 }
-
-
-
-

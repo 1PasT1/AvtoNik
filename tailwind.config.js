@@ -4,9 +4,10 @@ module.exports = {
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
   	extend: {
-		screens: {
+		 screens: {
         xs: '340px',
         sm450: '450px',
+        xs320: '320px',
       },
   		borderRadius: {
   			lg: 'var(--radius)',
