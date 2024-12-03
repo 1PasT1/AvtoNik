@@ -64,6 +64,7 @@ export function Navbar({ language, setLanguage }: NavbarProps) {
     } else if (location.pathname === '/why-choose-us') {
       setActiveSection('why-choose-us');
     } else {
+      // For privacy, terms, or any other pages
       setActiveSection('');
     }
   }, [location.pathname]);
@@ -78,6 +79,20 @@ export function Navbar({ language, setLanguage }: NavbarProps) {
       }
     }
   };
+
+  useEffect(() => {
+    if (location.pathname === '/' && location.state && (location.state as any).scrollTo) {
+      const section = (location.state as any).scrollTo;
+      const element = document.getElementById(section);
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }, 0);
+      }
+      // Clear the state after scrolling
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   const navItems = [
     { key: 'home', labelEn: 'Home', labelRu: 'Главная' },
