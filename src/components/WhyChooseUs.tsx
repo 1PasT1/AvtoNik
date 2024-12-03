@@ -41,9 +41,8 @@ export function WhyChooseUs({ language }: WhyChooseUsProps) {
         ru: "Гибкая система получения, где бы вы ни находились",
       },
       description: {
-        en: "You name your location, we deliver! Whether you're at home, the airport, or a meeting spot, we'll deliver the car right to you.",
-        ru: "Вы называете место, мы доставляем! Независимо от того, находитесь ли вы дома, в аэропорту или в месте встречи, мы доставим автомобиль прямо к вам.",
-      },
+        en: "Your time your location, we deliver! Whether you're at home, the airport, or a meeting spot, we'll deliver the car right to you.",
+        ru: "Ваше время, ваше местоположение, мы доставим! Независимо от того, находитесь ли вы дома, в аэропорту или на месте встречи, мы доставим автомобиль прямо к вам.",      },
     },
   ];
 
