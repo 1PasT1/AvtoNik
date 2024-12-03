@@ -28,25 +28,23 @@ export function Navbar({ language, setLanguage }: NavbarProps) {
 
   const handleLogoClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (location.pathname === '/') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      navigate('/');
-    }
+    navigate('/', { replace: true, state: { scrollTo: 'home' } });
   };
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
 
-      const sections = ['home', 'how-it-works', 'cars', 'why-choose-us'];
-      for (const section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          if (rect.top <= 100 && rect.bottom >= 100) {
-            setActiveSection(section);
-            break;
+      if (location.pathname === '/') {
+        const sections = ['home', 'how-it-works', 'cars', 'why-choose-us'];
+        for (const section of sections) {
+          const element = document.getElementById(section);
+          if (element) {
+            const rect = element.getBoundingClientRect();
+            if (rect.top <= 100 && rect.bottom >= 100) {
+              setActiveSection(section);
+              break;
+            }
           }
         }
       }
@@ -54,7 +52,7 @@ export function Navbar({ language, setLanguage }: NavbarProps) {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [location.pathname]);
 
   useEffect(() => {
     if (location.pathname === '/') {
@@ -65,31 +63,21 @@ export function Navbar({ language, setLanguage }: NavbarProps) {
       setActiveSection('how-it-works');
     } else if (location.pathname === '/why-choose-us') {
       setActiveSection('why-choose-us');
+    } else {
+      setActiveSection('');
     }
-  }, [location]);
-
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  }, [location.pathname]);
 
   const handleNavigation = (section: string) => {
-    if (location.pathname === '/') {
-      scrollToSection(section);
-    } else {
+    if (location.pathname !== '/') {
       navigate('/', { state: { scrollTo: section } });
+    } else {
+      const element = document.getElementById(section);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
     }
   };
-
-  useEffect(() => {
-    if (location.state && (location.state as any).scrollTo) {
-      const section = (location.state as any).scrollTo;
-      scrollToSection(section);
-      window.history.replaceState({}, document.title);
-    }
-  }, [location]);
 
   const navItems = [
     { key: 'home', labelEn: 'Home', labelRu: 'Главная' },
@@ -123,7 +111,7 @@ export function Navbar({ language, setLanguage }: NavbarProps) {
                   text-sm md:text-base 
                   transition-colors
                   hover:bg-white hover:bg-opacity-20 hover:text-orange-500
-                  ${activeSection === item.key ? 'text-orange-500' : 'text-gray-900'}
+                  ${activeSection === item.key && location.pathname === '/' ? 'text-orange-500' : 'text-gray-900'}
                   font-medium
                   ${isRentNowPage ? 'text-gray-900' : ''}
                   px-3 py-2 rounded-md
