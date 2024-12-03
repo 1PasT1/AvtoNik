@@ -1,10 +1,22 @@
+import { useEffect } from "react";
 import { Headphones, BadgeDollarSign, MapPin } from "lucide-react";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface WhyChooseUsProps {
   language: string;
 }
 
 export function WhyChooseUs({ language }: WhyChooseUsProps) {
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      once: true,
+      mirror: true,
+      offset: 50,
+    });
+  }, []);
+
   const reasons = [
     {
       icon: Headphones,
@@ -37,18 +49,31 @@ export function WhyChooseUs({ language }: WhyChooseUsProps) {
 
   return (
     <section className="py-12 sm:py-16 bg-white">
-      <div className="container mx-auto px-4">
-        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-4">
+      <div className="container mx-auto px-4 overflow-hidden">
+        <h2
+          className="text-2xl sm:text-3xl font-bold text-center mb-4"
+          data-aos="fade-up"
+          data-aos-offset="100"
+        >
           {language === "English" ? "Why choose us" : "Почему выбирают нас"}
         </h2>
-        <p className="text-center text-gray-600 mb-8 sm:mb-12 max-w-2xl mx-auto">
+        <p
+          className="text-center text-gray-600 mb-8 sm:mb-12 max-w-2xl mx-auto"
+          data-aos="fade-up"
+          data-aos-delay="100"
+          data-aos-offset="100"
+        >
           {language === "English"
             ? "Enjoy exceptional support, unbeatable prices, and pickup options tailored to your needs—because your journey matters to us"
             : "Наслаждайтесь исключительной поддержкой, непревзойденными ценами и вариантами получения, адаптированными к вашим потребностям — потому что ваше путешествие важно для нас"}
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-center">
-          <div>
+          <div
+            data-aos="fade-right"
+            data-aos-offset="100"
+            data-aos-easing="ease-in-sine"
+          >
             <img
               src="/G-class.png"
               alt={
@@ -62,17 +87,33 @@ export function WhyChooseUs({ language }: WhyChooseUsProps) {
 
           <div className="space-y-6 sm:space-y-8">
             {reasons.map((reason, index) => (
-              <div key={index} className="flex gap-4">
+              <div
+                key={index}
+                className="flex gap-4"
+                data-aos="fade-left"
+                data-aos-offset="50"
+                data-aos-delay={index * 100}
+              >
                 <div className="flex-shrink-0">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-500 rounded-lg flex items-center justify-center">
                     <reason.icon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-lg sm:text-xl font-semibold mb-2">
+                  <h3
+                    className="text-lg sm:text-xl font-semibold mb-2"
+                    data-aos="fade-left"
+                    data-aos-offset="50"
+                    data-aos-delay={index * 150}
+                  >
                     {language === "English" ? reason.title.en : reason.title.ru}
                   </h3>
-                  <p className="text-gray-600 text-sm sm:text-base">
+                  <p
+                    className="text-gray-600 text-sm sm:text-base"
+                    data-aos="fade-left"
+                    data-aos-offset="50"
+                    data-aos-delay={index * 200}
+                  >
                     {language === "English"
                       ? reason.description.en
                       : reason.description.ru}
