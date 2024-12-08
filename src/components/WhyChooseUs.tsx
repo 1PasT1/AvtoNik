@@ -9,12 +9,29 @@ interface WhyChooseUsProps {
 
 export function WhyChooseUs({ language }: WhyChooseUsProps) {
   useEffect(() => {
-    AOS.init({
-      duration: 1000,
-      once: true,
-      mirror: true,
-      offset: 50,
-    });
+    const updateAOSOffset = () => {
+      const offset = window.innerWidth < 350 ? 10 : 50;
+      AOS.init({
+        duration: 1000,
+        once: true,
+        mirror: true,
+        offset: offset,
+      });
+    };
+
+    updateAOSOffset();
+    window.addEventListener('resize', updateAOSOffset);
+
+    const refreshAOS = () => {
+      AOS.refresh();
+    };
+
+    window.addEventListener('scroll', refreshAOS);
+
+    return () => {
+      window.removeEventListener('resize', updateAOSOffset);
+      window.removeEventListener('scroll', refreshAOS);
+    };
   }, []);
 
   const reasons = [
@@ -42,7 +59,8 @@ export function WhyChooseUs({ language }: WhyChooseUsProps) {
       },
       description: {
         en: "Your time your location, we deliver! Whether you're at home, the airport, or a meeting spot, we'll deliver the car right to you.",
-        ru: "Ваше время, ваше местоположение, мы доставим! Независимо от того, находитесь ли вы дома, в аэропорту или на месте встречи, мы доставим автомобиль прямо к вам.",      },
+        ru: "Ваше время, ваше местоположение, мы доставим! Независимо от того, находитесь ли вы дома, в аэропорту или на месте встречи, мы доставим автомобиль прямо к вам.",
+      },
     },
   ];
 
