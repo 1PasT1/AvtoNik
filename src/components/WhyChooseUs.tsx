@@ -39,7 +39,7 @@ export function WhyChooseUs({ language }: WhyChooseUsProps) {
       icon: Headphones,
       title: { en: "Customer Support", ru: "Поддержка клиентов" },
       description: {
-        en: "We're always here to help! Our friendly customer support team is available around the clock, ready to assist you with any questions or concerns.",
+        en: "We're always newcommithere here to help! Our friendly customer support team is available around the clock, ready to assist you with any questions or concerns.",
         ru: "Мы всегда готовы помочь! Наша дружелюбная команда поддержки клиентов доступна круглосуточно и готова помочь вам с любыми вопросами или проблемами.",
       },
     },
