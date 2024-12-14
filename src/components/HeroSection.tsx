@@ -17,7 +17,13 @@ export function HeroSection({ language }: HeroSectionProps) {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-r from-white to-[#FF0000] overflow-hidden">
+    <div
+      className="relative min-h-screen overflow-hidden"
+      style={{
+        background:
+          "linear-gradient(105deg, rgba(255,208,208,0.4907212885154062) 10%, rgba(226,34,34,0.88) 45%, rgba(247,20,20,1) 85%)",
+      }}
+    >
       <div className="container mx-auto px-4 pt-20 sm:pt-32">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           <div
