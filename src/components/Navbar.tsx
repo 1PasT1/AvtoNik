@@ -113,7 +113,7 @@ export function Navbar({ language, setLanguage }: NavbarProps) {
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link to="/" onClick={handleLogoClick} className="text-xl font-bold">
+          <Link to="/" onClick={handleLogoClick} className="text-3xl font-bold">
             AvtoNik
           </Link>
           
