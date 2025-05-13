@@ -31,7 +31,7 @@ export function Footer({ language }: FooterProps) {
           </div>
 
           <a
-            href="https://instagram.com/direct/t/101031457963981/"
+            href="https://www.instagram.com/avtonikrental/"
             target="_blank"
             rel="noopener noreferrer"
             className="mt-4 md:mt-0 p-2 rounded-full hover:bg-gray-200 transition-colors duration-200"
