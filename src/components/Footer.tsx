@@ -43,7 +43,7 @@ export function Footer({ language }: FooterProps) {
 
         <div className="mt-8 pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-gray-600 mb-4 md:mb-0">
-            &copy; 2024 AvtoNik. All rights reserved
+            &copy; 2025 AvtoNik. All rights reserved
           </p>
           <div className="flex space-x-4">
             <Button
