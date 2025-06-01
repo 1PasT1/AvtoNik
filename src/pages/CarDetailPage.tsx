@@ -1,17 +1,5 @@
 "use client";
 
-declare global {
-  interface Window {
-    grecaptcha: {
-      ready: (callback: () => void) => void;
-      execute: (
-        siteKey: string,
-        options: { action: string }
-      ) => Promise<string>;
-    };
-  }
-}
-
 import type React from "react";
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
@@ -118,7 +106,6 @@ export const CarDetailPage: React.FC = () => {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [totalPrice, setTotalPrice] = useState<number | null>(null);
-  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalImageIndex, setModalImageIndex] = useState(0);
   const submitButtonRef = useRef<HTMLButtonElement>(null);
@@ -246,23 +233,6 @@ export const CarDetailPage: React.FC = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const executeRecaptcha = () => {
-    return new Promise<string>((resolve, reject) => {
-      if (
-        typeof window.grecaptcha !== "undefined" &&
-        window.grecaptcha.execute
-      ) {
-        window.grecaptcha.ready(() => {
-          window.grecaptcha
-            .execute("YOUR_RECAPTCHA_SITE_KEY", { action: "submit" })
-            .then(resolve)
-            .catch(reject);
-        });
-      } else {
-        reject(new Error("reCAPTCHA not loaded"));
-      }
-    });
-  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -280,22 +250,19 @@ export const CarDetailPage: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      // Execute reCAPTCHA
-      const token = await executeRecaptcha();
-      setRecaptchaToken(token);
+ 
 
-      // Create the inquiry data with exact field names matching backend
+
       const inquiryData = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
-        phone: `${formData.countryCode}${formData.phoneNumber}`, // Combine country code and phone
+        phone: `${formData.countryCode}${formData.phoneNumber}`, 
         pickupdate: dateRange?.from?.toISOString() || "",
         dropoffdate: dateRange?.to?.toISOString() || "",
         carid: car?.id || "",
         message: formData.message,
         totalPrice: totalPrice || 0,
-        recaptchaToken: token, // Add the reCAPTCHA token to the inquiry data
       };
 
       await sendInquiry(inquiryData);
@@ -662,11 +629,6 @@ export const CarDetailPage: React.FC = () => {
                           ? "Send Inquiry"
                           : "Отправить запрос"}
                       </Button>
-                      <input
-                        type="hidden"
-                        name="g-recaptcha-response"
-                        value={recaptchaToken || ""}
-                      />
                     </form>
                   </CardContent>
                 </Card>
