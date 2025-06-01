@@ -1,12 +1,16 @@
-"use client"
-
-import { useState, useEffect, useRef } from "react"
-import { useNavigate } from "react-router-dom"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
-import { Skeleton } from "@/components/ui/skeleton"
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Car,
   ShuffleIcon as GearShift,
@@ -17,98 +21,118 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-} from "lucide-react"
-import type { Car as CarType } from "@/types/car"
+} from "lucide-react";
+import type { Car as CarType } from "@/types/car";
 
 interface CarListingProps {
-  cars: CarType[]
-  language: string
-  isLoading: boolean
+  cars: CarType[];
+  language: string;
+  isLoading: boolean;
 }
 
-export function CarListing({ cars: initialCars, language, isLoading }: CarListingProps) {
-  const [cars, setCars] = useState<CarType[]>([])
-  const [sortBy, setSortBy] = useState("price-low")
+export function CarListing({
+  cars: initialCars,
+  language,
+  isLoading,
+}: CarListingProps) {
+  const [cars, setCars] = useState<CarType[]>([]);
+  const [sortBy, setSortBy] = useState("price-low");
   const [filters, setFilters] = useState({
     gearType: "",
     fuelType: "",
     priceFrom: "",
     priceTo: "",
     vehicleClass: "",
-  })
-  const [isFilterApplied, setIsFilterApplied] = useState(false)
-  const [hasFilterChanges, setHasFilterChanges] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
-  const carsPerPage = 8
-  const navigate = useNavigate()
-  const listingRef = useRef<HTMLDivElement>(null)
-  const isInitialMount = useRef(true)
-  const [carImageIndices, setCarImageIndices] = useState<{ [key: string]: number }>({})
-
+  });
+  const [isFilterApplied, setIsFilterApplied] = useState(false);
+  const [hasFilterChanges, setHasFilterChanges] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const carsPerPage = 8;
+  const navigate = useNavigate();
+  const listingRef = useRef<HTMLDivElement>(null);
+  const isInitialMount = useRef(true);
+  const [carImageIndices, setCarImageIndices] = useState<{
+    [key: string]: number;
+  }>({});
   useEffect(() => {
     if (!isLoading) {
-      const sortedCars = sortCars(initialCars, sortBy)
-      setCars(sortedCars)
+      const sortedCars = sortCars(initialCars, sortBy);
+      setCars(sortedCars);
     }
-  }, [isLoading, initialCars, sortBy])
+  }, [isLoading, initialCars, sortBy]);
 
   useEffect(() => {
     if (isInitialMount.current) {
-      isInitialMount.current = false
+      isInitialMount.current = false;
     } else {
       if (listingRef.current) {
-        const yOffset = -125
-        const y = listingRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset
-        window.scrollTo({ top: y, behavior: "smooth" })
+        const yOffset = -125;
+        const y =
+          listingRef.current.getBoundingClientRect().top +
+          window.pageYOffset +
+          yOffset;
+        window.scrollTo({ top: y, behavior: "smooth" });
       }
     }
-  }, [currentPage])
+  }, [currentPage]);
 
   const sortCars = (carsToSort: CarType[], sortType: string) => {
     return [...carsToSort].sort((a, b) => {
-      if (sortType === "price-low") return a.price - b.price
-      if (sortType === "price-high") return b.price - a.price
-      return 0
-    })
-  }
+      if (sortType === "price-low") return a.price - b.price;
+      if (sortType === "price-high") return b.price - a.price;
+      return 0;
+    });
+  };
 
   const handleSort = (value: string) => {
-    setSortBy(value)
-    const sorted = sortCars(cars, value)
-    setCars(sorted)
-    setCurrentPage(1)
-  }
+    setSortBy(value);
+    const sorted = sortCars(cars, value);
+    setCars(sorted);
+    setCurrentPage(1);
+  };
 
   const handleFilterChange = (key: string, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: value }))
-    setHasFilterChanges(true)
-  }
+    setFilters((prev) => ({ ...prev, [key]: value }));
+    setHasFilterChanges(true);
+  };
 
   const applyFilters = () => {
-    let filteredCars = [...initialCars]
+    let filteredCars = [...initialCars];
 
     if (filters.gearType) {
-      filteredCars = filteredCars.filter((car) => car.transmission.toLowerCase() === filters.gearType.toLowerCase())
+      filteredCars = filteredCars.filter(
+        (car) =>
+          car.transmission.toLowerCase() === filters.gearType.toLowerCase()
+      );
     }
     if (filters.fuelType) {
-      filteredCars = filteredCars.filter((car) => car.fuelType.toLowerCase() === filters.fuelType.toLowerCase())
+      filteredCars = filteredCars.filter(
+        (car) => car.fuelType.toLowerCase() === filters.fuelType.toLowerCase()
+      );
     }
     if (filters.priceFrom) {
-      filteredCars = filteredCars.filter((car) => car.price >= Number.parseInt(filters.priceFrom))
+      filteredCars = filteredCars.filter(
+        (car) => car.price >= parseInt(filters.priceFrom)
+      );
     }
     if (filters.priceTo) {
-      filteredCars = filteredCars.filter((car) => car.price <= Number.parseInt(filters.priceTo))
+      filteredCars = filteredCars.filter(
+        (car) => car.price <= parseInt(filters.priceTo)
+      );
     }
     if (filters.vehicleClass) {
-      filteredCars = filteredCars.filter((car) => car.category.toLowerCase() === filters.vehicleClass.toLowerCase())
+      filteredCars = filteredCars.filter(
+        (car) =>
+          car.category.toLowerCase() === filters.vehicleClass.toLowerCase()
+      );
     }
 
-    const sortedAndFilteredCars = sortCars(filteredCars, sortBy)
-    setCars(sortedAndFilteredCars)
-    setIsFilterApplied(true)
-    setHasFilterChanges(false)
-    setCurrentPage(1)
-  }
+    const sortedAndFilteredCars = sortCars(filteredCars, sortBy);
+    setCars(sortedAndFilteredCars);
+    setIsFilterApplied(true);
+    setHasFilterChanges(false);
+    setCurrentPage(1);
+  };
 
   const clearFilters = () => {
     setFilters({
@@ -117,72 +141,96 @@ export function CarListing({ cars: initialCars, language, isLoading }: CarListin
       priceFrom: "",
       priceTo: "",
       vehicleClass: "",
-    })
-    const sortedCars = sortCars(initialCars, sortBy)
-    setCars(sortedCars)
-    setIsFilterApplied(false)
-    setHasFilterChanges(false)
-    setCurrentPage(1)
-  }
+    });
+    const sortedCars = sortCars(initialCars, sortBy);
+    setCars(sortedCars);
+    setIsFilterApplied(false);
+    setHasFilterChanges(false);
+    setCurrentPage(1);
+  };
 
   useEffect(() => {
     if (isFilterApplied) {
-      setHasFilterChanges(true)
+      setHasFilterChanges(true);
     }
-  }, [filters])
+  }, [filters]);
 
   const handleRentNow = (carId: string) => {
-    navigate(`/cars/${carId}`)
-  }
+    navigate(`/cars/${carId}`);
+  };
 
   // Pagination
-  const indexOfLastCar = currentPage * carsPerPage
-  const indexOfFirstCar = indexOfLastCar - carsPerPage
-  const currentCars = cars.slice(indexOfFirstCar, indexOfLastCar)
-  const totalPages = Math.ceil(cars.length / carsPerPage)
+  const indexOfLastCar = currentPage * carsPerPage;
+  const indexOfFirstCar = indexOfLastCar - carsPerPage;
+  const currentCars = cars.slice(indexOfFirstCar, indexOfLastCar);
+  const totalPages = Math.ceil(cars.length / carsPerPage);
 
   const paginate = (pageNumber: number) => {
-    setCurrentPage(pageNumber)
-  }
+    setCurrentPage(pageNumber);
+  };
 
   const CarSkeleton = () => (
     <Card className="overflow-hidden">
-      <Skeleton className="aspect-video w-full" />
-      <CardContent className="p-4">
-        <Skeleton className="h-5 w-3/4 mb-2" />
-        <Skeleton className="h-7 w-1/2 mb-4" />
+      <Skeleton className="h-48 w-full" />
+      <CardContent className="p-6">
+        <Skeleton className="h-6 w-3/4 mb-2" />
+        <Skeleton className="h-4 w-1/2 mb-4" />
         <div className="space-y-2">
-          <Skeleton className="h-3 w-full" />
-          <Skeleton className="h-3 w-full" />
-          <Skeleton className="h-3 w-2/3" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-2/3" />
         </div>
       </CardContent>
-      <CardFooter className="p-4 pt-0">
-        <Skeleton className="h-8 w-full" />
+      <CardFooter className="p-6 pt-0">
+        <Skeleton className="h-10 w-full" />
       </CardFooter>
     </Card>
-  )
+  );
 
   const getPageNumbers = () => {
-    const pageNumbers = []
-    let startPage = Math.max(1, currentPage - 2)
-    const endPage = Math.min(totalPages, startPage + 4)
+    const pageNumbers = [];
+    let startPage = Math.max(1, currentPage - 1);
+    let endPage = Math.min(totalPages, startPage + 3);
 
-    if (endPage - startPage < 4) {
-      startPage = Math.max(1, endPage - 4)
+    if (endPage - startPage < 3) {
+      startPage = Math.max(1, endPage - 3);
     }
 
     for (let i = startPage; i <= endPage; i++) {
-      pageNumbers.push(i)
+      pageNumbers.push(i);
     }
-    return pageNumbers
-  }
+    return pageNumbers;
+  };
+
+  const handleCarImagePrev = (carId: string, galleryLength: number) => {
+    setCarImageIndices((prev) => ({
+      ...prev,
+      [carId]: prev[carId]
+        ? prev[carId] === 0
+          ? galleryLength - 1
+          : prev[carId] - 1
+        : galleryLength - 1,
+    }));
+  };
+
+  const handleCarImageNext = (carId: string, galleryLength: number) => {
+    setCarImageIndices((prev) => ({
+      ...prev,
+      [carId]: prev[carId]
+        ? prev[carId] === galleryLength - 1
+          ? 0
+          : prev[carId] + 1
+        : 1,
+    }));
+  };
 
   return (
-    <div className="py-8 sm:py-12" data-aos="fade-up">
+    <div className="py-8 sm:py-12">
       <div className="container mx-auto px-4">
         <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6">
-          {language === "English" ? "Rent a Car, Start Your Journey" : "Арендуйте автомобиль, начните свое путешествие"}
+          {language === "English"
+            ? "Rent a Car, Start Your Journey"
+            : "Арендуйте автомобиль, начните свое путешествие"}
         </h2>
         <p className="text-center text-gray-600 mb-8">
           {language === "English"
@@ -191,25 +239,51 @@ export function CarListing({ cars: initialCars, language, isLoading }: CarListin
         </p>
 
         <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          <Select value={filters.gearType} onValueChange={(value) => handleFilterChange("gearType", value)}>
+          <Select
+            value={filters.gearType}
+            onValueChange={(value) => handleFilterChange("gearType", value)}
+          >
             <SelectTrigger>
-              <SelectValue placeholder={language === "English" ? "Gear Type" : "Тип коробки передач"} />
+              <SelectValue
+                placeholder={
+                  language === "English" ? "Gear Type" : "Тип коробки передач"
+                }
+              />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="manual">{language === "English" ? "Manual" : "Механическая"}</SelectItem>
-              <SelectItem value="automatic">{language === "English" ? "Automatic" : "Автоматическая"}</SelectItem>
+              <SelectItem value="manual">
+                {language === "English" ? "Manual" : "Механическая"}
+              </SelectItem>
+              <SelectItem value="automatic">
+                {language === "English" ? "Automatic" : "Автоматическая"}
+              </SelectItem>
             </SelectContent>
           </Select>
 
-          <Select value={filters.fuelType} onValueChange={(value) => handleFilterChange("fuelType", value)}>
+          <Select
+            value={filters.fuelType}
+            onValueChange={(value) => handleFilterChange("fuelType", value)}
+          >
             <SelectTrigger>
-              <SelectValue placeholder={language === "English" ? "Fuel Type" : "Тип топлива"} />
+              <SelectValue
+                placeholder={
+                  language === "English" ? "Fuel Type" : "Тип топлива"
+                }
+              />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="gasoline">{language === "English" ? "Gasoline" : "Бензин"}</SelectItem>
-              <SelectItem value="diesel">{language === "English" ? "Diesel" : "Дизель"}</SelectItem>
-              <SelectItem value="electric">{language === "English" ? "Electric" : "Электро"}</SelectItem>
-              <SelectItem value="hybrid">{language === "English" ? "Hybrid" : "Гибрид"}</SelectItem>
+              <SelectItem value="gasoline">
+                {language === "English" ? "Gasoline" : "Бензин"}
+              </SelectItem>
+              <SelectItem value="diesel">
+                {language === "English" ? "Diesel" : "Дизель"}
+              </SelectItem>
+              <SelectItem value="electric">
+                {language === "English" ? "Electric" : "Электро"}
+              </SelectItem>
+              <SelectItem value="hybrid">
+                {language === "English" ? "Hybrid" : "Гибрид"}
+              </SelectItem>
             </SelectContent>
           </Select>
 
@@ -228,114 +302,140 @@ export function CarListing({ cars: initialCars, language, isLoading }: CarListin
             />
           </div>
 
-          <Select value={filters.vehicleClass} onValueChange={(value) => handleFilterChange("vehicleClass", value)}>
+          <Select
+            value={filters.vehicleClass}
+            onValueChange={(value) => handleFilterChange("vehicleClass", value)}
+          >
             <SelectTrigger>
-              <SelectValue placeholder={language === "English" ? "Vehicle Class" : "Класс автомобиля"} />
+              <SelectValue
+                placeholder={
+                  language === "English" ? "Vehicle Class" : "Класс автомобиля"
+                }
+              />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="economy">{language === "English" ? "Economy" : "Эконом"}</SelectItem>
-              <SelectItem value="compact">{language === "English" ? "Compact" : "Компактный"}</SelectItem>
-              <SelectItem value="midsize">{language === "English" ? "Midsize" : "Средний"}</SelectItem>
-              <SelectItem value="luxury">{language === "English" ? "Luxury" : "Люкс"}</SelectItem>
-              <SelectItem value="suv">{language === "English" ? "SUV" : "Внедорожник"}</SelectItem>
-              <SelectItem value="electric">{language === "English" ? "Electric" : "Электрический"}</SelectItem>
+              <SelectItem value="economy">
+                {language === "English" ? "Economy" : "Эконом"}
+              </SelectItem>
+              <SelectItem value="compact">
+                {language === "English" ? "Compact" : "Компактный"}
+              </SelectItem>
+              <SelectItem value="midsize">
+                {language === "English" ? "Midsize" : "Средний"}
+              </SelectItem>
+              <SelectItem value="luxury">
+                {language === "English" ? "Luxury" : "Люкс"}
+              </SelectItem>
+              <SelectItem value="suv">
+                {language === "English" ? "SUV" : "Внедорожник"}
+              </SelectItem>
+              <SelectItem value="electric">
+                {language === "English" ? "Electric" : "Электрический"}
+              </SelectItem>
             </SelectContent>
           </Select>
 
-          <Button onClick={isFilterApplied && !hasFilterChanges ? clearFilters : applyFilters}>
+          <Button
+            onClick={
+              isFilterApplied && !hasFilterChanges ? clearFilters : applyFilters
+            }
+          >
             {isFilterApplied && !hasFilterChanges
               ? language === "English"
                 ? "Clear Filter"
                 : "Очистить фильтр"
               : language === "English"
-                ? "Apply Filter"
-                : "Применить фильтр"}
+              ? "Apply Filter"
+              : "Применить фильтр"}
           </Button>
         </div>
 
         <div className="flex justify-end mb-4">
           <Select value={sortBy} onValueChange={handleSort}>
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder={language === "English" ? "Sort by" : "Сортировать по"} />
+              <SelectValue
+                placeholder={
+                  language === "English" ? "Sort by" : "Сортировать по"
+                }
+              />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="price-low">
-                {language === "English" ? "Price: Low to High" : "Цена: по возрастанию"}
+                {language === "English"
+                  ? "Price: Low to High"
+                  : "Цена: по возрастанию"}
               </SelectItem>
               <SelectItem value="price-high">
-                {language === "English" ? "Price: High to Low" : "Цена: по убыванию"}
+                {language === "English"
+                  ? "Price: High to Low"
+                  : "Цена: по убыванию"}
               </SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div ref={listingRef} className="h-1" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {isLoading
             ? Array(carsPerPage)
                 .fill(0)
                 .map((_, index) => <CarSkeleton key={index} />)
-            : currentCars.map((car, index) => (
-                <Card key={car.id} className="overflow-hidden" data-aos="fade-up" data-aos-delay={index * 50}>
+            : currentCars.map((car) => (
+                <Card key={car.id} className="overflow-hidden">
                   <div className="aspect-video bg-muted flex items-center justify-center relative group">
                     <img
                       src={
-                        car.gallery && Array.isArray(car.gallery) && car.gallery.length > 0
+                        car.gallery &&
+                        Array.isArray(car.gallery) &&
+                        car.gallery.length > 0
                           ? car.gallery[carImageIndices[car.id] || 0]
                           : car.image
                       }
                       alt={car.name}
                       className="w-full h-full object-cover"
                     />
-
-                    {/* Navigation arrows - only show if car has multiple images */}
-                    {car.gallery && Array.isArray(car.gallery) && car.gallery.length > 1 && (
-                      <>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="absolute left-1 top-1/2 transform -translate-y-1/2 w-4 h-10 bg-white/80 hover:bg-white transition-opacity duration-200 shadow-sm"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            e.preventDefault()
-                            const currentIndex = carImageIndices[car.id] || 0
-                            const newIndex = currentIndex === 0 ? car.gallery.length - 1 : currentIndex - 1
-                            setCarImageIndices((prev) => ({ ...prev, [car.id]: newIndex }))
-                          }}
-                        >
-                          <ChevronLeft className="h-3 w-3" />
-                        </Button>
-
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="absolute right-1 top-1/2 transform -translate-y-1/2 w-4 h-10 bg-white/80 hover:bg-white transition-opacity duration-200 shadow-sm"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            e.preventDefault()
-                            const currentIndex = carImageIndices[car.id] || 0
-                            const newIndex = currentIndex === car.gallery.length - 1 ? 0 : currentIndex + 1
-                            setCarImageIndices((prev) => ({ ...prev, [car.id]: newIndex }))
-                          }}
-                        >
-                          <ChevronRight className="h-3 w-3" />
-                        </Button>
-
-                        {/* Image indicator dots */}
-                        <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 flex gap-1 transition-opacity duration-200">
+                    {car.gallery &&
+                      Array.isArray(car.gallery) &&
+                      car.gallery.length > 1 && (
+                        <>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCarImagePrev(car.id, car.gallery.length);
+                            }}
+                            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-sm transition-opacity duration-200 flex items-center justify-center"
+                            style={{ width: "16px", height: "40px" }}
+                          >
+                            <ChevronLeft className="h-3 w-3 text-gray-700" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCarImageNext(car.id, car.gallery.length);
+                            }}
+                            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-sm transition-opacity duration-200 flex items-center justify-center"
+                            style={{ width: "16px", height: "40px" }}
+                          >
+                            <ChevronRight className="h-3 w-3 text-gray-700" />
+                          </button>
                           {car.gallery &&
                             Array.isArray(car.gallery) &&
-                            car.gallery.map((_, index) => (
-                              <div
-                                key={index}
-                                className={`w-1.5 h-1.5 rounded-full ${
-                                  index === (carImageIndices[car.id] || 0) ? "bg-white" : "bg-white/50"
-                                }`}
-                              />
-                            ))}
-                        </div>
-                      </>
-                    )}
+                            car.gallery.length > 1 && (
+                              <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1 transition-opacity duration-200">
+                                {car.gallery.map((_, index) => (
+                                  <div
+                                    key={index}
+                                    className={`w-1.5 h-1.5 rounded-full ${
+                                      index === (carImageIndices[car.id] || 0)
+                                        ? "bg-white"
+                                        : "bg-white/50"
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                            )}
+                        </>
+                      )}
                   </div>
                   <CardContent className="p-6">
                     <h3 className="text-2xl font-bold mb-4">{car.name}</h3>
@@ -367,7 +467,7 @@ export function CarListing({ cars: initialCars, language, isLoading }: CarListin
                   </CardContent>
                   <CardFooter className="p-6 pt-0">
                     <Button
-                      className="w-full bg-black hover:bg-gray-800 text-white"
+                      className="w-full bg-black hover:bg-gray-800 text-white py-3 text-lg"
                       onClick={() => handleRentNow(car.id.toString())}
                     >
                       {language === "English" ? "Rent Now" : "Арендовать"}
@@ -377,63 +477,55 @@ export function CarListing({ cars: initialCars, language, isLoading }: CarListin
               ))}
         </div>
 
-        <div className="mt-12 flex justify-center" data-aos="fade-up" data-aos-delay="200">
-          <nav className="inline-flex">
-            <Button
-              variant="outline"
-              onClick={() => paginate(1)}
-              disabled={currentPage === 1}
-              className="mr-1 h-10 w-10 p-2 max-sm450:hidden max-xs320:h-8 max-xs320:w-8 max-xs320:p-1"
-              data-aos="fade-up"
-              data-aos-delay="200"
-            >
-              <ChevronsLeft className="h-4 w-4 max-xs320:h-3 max-xs320:w-3" />
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => paginate(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="mr-1 h-10 w-10 p-2 max-xs320:h-8 max-xs320:w-8 max-xs320:p-1"
-              data-aos="fade-up"
-              data-aos-delay="250"
-            >
-              <ChevronLeft className="h-4 w-4 max-xs320:h-3 max-xs320:w-3" />
-            </Button>
-            {getPageNumbers().map((number) => (
+        {cars.length > 0 && (
+          <div className="mt-12 flex justify-center">
+            <nav className="inline-flex">
               <Button
-                key={number}
-                variant={currentPage === number ? "default" : "outline"}
-                onClick={() => paginate(number)}
-                className="mx-1 h-10 w-10 p-2 text-sm max-xs320:h-8 max-xs320:w-8 max-xs320:p-1 max-xs320:text-xs"
-                data-aos="fade-up"
-                data-aos-delay={300 + number * 50}
+                variant="outline"
+                onClick={() => paginate(1)}
+                disabled={currentPage === 1}
+                className="mr-1 h-10 w-10 p-2 max-sm450:hidden max-xs320:h-8 max-xs320:w-8 max-xs320:p-1"
               >
-                {number}
+                <ChevronsLeft className="h-4 w-4 max-xs320:h-3 max-xs320:w-3" />
               </Button>
-            ))}
-            <Button
-              variant="outline"
-              onClick={() => paginate(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="ml-1 h-10 w-10 p-2 max-xs320:h-8 max-xs320:w-8 max-xs320:p-1"
-              data-aos="fade-up"
-              data-aos-delay="400"
-            >
-              <ChevronRight className="h-4 w-4 max-xs320:h-3 max-xs320:w-3" />
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => paginate(totalPages)}
-              disabled={currentPage === totalPages}
-              className="ml-1 h-10 w-10 p-2 max-sm450:hidden max-xs320:h-8 max-xs320:w-8 max-xs320:p-1"
-              data-aos="fade-up"
-              data-aos-delay="450"
-            >
-              <ChevronsRight className="h-4 w-4 max-xs320:h-3 max-xs320:w-3" />
-            </Button>
-          </nav>
-        </div>
+              <Button
+                variant="outline"
+                onClick={() => paginate(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="mr-1 h-10 w-10 p-2 max-xs320:h-8 max-xs320:w-8 max-xs320:p-1"
+              >
+                <ChevronLeft className="h-4 w-4 max-xs320:h-3 max-xs320:w-3" />
+              </Button>
+              {getPageNumbers().map((number) => (
+                <Button
+                  key={number}
+                  variant={currentPage === number ? "default" : "outline"}
+                  onClick={() => paginate(number)}
+                  className="mx-1 h-10 w-10 p-2 text-sm max-xs320:h-8 max-xs320:w-8 max-xs320:p-1 max-xs320:text-xs"
+                >
+                  {number}
+                </Button>
+              ))}
+              <Button
+                variant="outline"
+                onClick={() => paginate(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="ml-1 h-10 w-10 p-2 max-xs320:h-8 max-xs320:w-8 max-xs320:p-1"
+              >
+                <ChevronRight className="h-4 w-4 max-xs320:h-3 max-xs320:w-3" />
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => paginate(totalPages)}
+                disabled={currentPage === totalPages}
+                className="ml-1 h-10 w-10 p-2 max-sm450:hidden max-xs320:h-8 max-xs320:w-8 max-xs320:p-1"
+              >
+                <ChevronsRight className="h-4 w-4 max-xs320:h-3 max-xs320:w-3" />
+              </Button>
+            </nav>
+          </div>
+        )}
       </div>
     </div>
-  )
+  );
 }
