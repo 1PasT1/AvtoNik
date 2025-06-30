@@ -45,48 +45,50 @@
 
   <!-- Structured Data for Local Business with Reviews -->
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "name": "AvtoNik Car Rental",
-    "description": "Professional car rental service offering economy, luxury, and SUV vehicles with best price guarantee and flexible pickup options.",
-    "url": "https://avtonik.com",
-    "logo": "https://avtonik.com/logo.png",
-    "image": "https://avtonik.com/og-image.jpg",
-    "telephone": "+995-598-898-444",
-    "address": {
-      "@type": "PostalAddress",
-      "addressCountry": "GE",
-      "addressRegion": "Georgia"
-    },
-    "geo": {
-      "@type": "GeoCoordinates",
-      "latitude": "42.3154",
-      "longitude": "43.3569"
-    },
-    "openingHours": "Mo-Su 00:00-23:59",
-    "priceRange": "$30-$200",
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "reviewCount": "150"
-    },
-    "review": [
-      {
-        "@type": "Review",
-        "author": {
-          "@type": "Person",
-          "name": "John Smith"
-        },
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "5"
-        },
-        "reviewBody": "Excellent car rental service with great prices and friendly staff."
-      }
-    ]
-  }
-  </script>
+{
+  "@context": "https://schema.org",
+  "@type": "AutoRental",
+  "name": "AvtoNik Car Rental",
+  "description": "Affordable and flexible car rental service in Georgia. Economy, luxury, and SUVs available. Book online now!",
+  "url": "https://avtonik.com",
+  "logo": "https://avtonik.com/logo.png",
+  "image": "https://avtonik.com/og-image.jpg",
+  "telephone": "+995-598-898-444",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Tbilisi",
+    "addressRegion": "Georgia",
+    "addressCountry": "GE"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 42.3154,
+    "longitude": 43.3569
+  },
+  "openingHours": "Mo-Su 00:00-23:59",
+  "priceRange": "$30-$200",
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.8",
+    "reviewCount": "150"
+  },
+  "review": [
+    {
+      "@type": "Review",
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": 5
+      },
+      "author": {
+        "@type": "Person",
+        "name": "John Smith"
+      },
+      "reviewBody": "Excellent car rental service with great prices and friendly staff."
+    }
+  ]
+}
+</script>
+
 
   <!-- Google reCAPTCHA -->
   <script src="https://www.google.com/recaptcha/api.js?render=YOUR_RECAPTCHA_SITE_KEY"></script>
