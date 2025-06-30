@@ -35,8 +35,8 @@ import type { DateRange } from "react-day-picker";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { fetchCars, sendInquiry } from "@/utils/api";
+import { SEO } from "@/components/SEO"
 
-// Add this CSS for the slide-up animation
 const slideUpAnimation = `
   @keyframes slideUp {
     from {
@@ -307,6 +307,21 @@ export const CarDetailPage: React.FC = () => {
 
   return (
     <>
+    <SEO
+        title={car ? `${car.name} - Car Rental | AvtoNik` : "Car Details - AvtoNik"}
+        description={
+          car
+            ? `Rent ${car.name} for $${car.price}/day. ${car.description} Book your ${car.category} rental car online with AvtoNik.`
+            : "View car details and book your rental car with AvtoNik"
+        }
+        keywords={
+          car
+            ? `${car.name}, ${car.category} rental, ${car.fuelType} car rental, ${car.transmission} car, rent ${car.name.toLowerCase()}`
+            : "car rental details, book rental car"
+        }
+        language={language}
+      />
+      
       <style>{slideUpAnimation}</style>
       <main className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
         <Navbar language={language} setLanguage={setLanguage} />
