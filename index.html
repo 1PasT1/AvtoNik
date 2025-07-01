@@ -12,7 +12,8 @@
   <meta name="robots" content="index, follow" />
   <meta name="language" content="English" />
   <meta name="author" content="AvtoNik Car Rental" />
-  
+  <meta name="referrer" content="origin-when-cross-origin" />
+
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://avtonik.com/" />
@@ -46,63 +47,64 @@
   
   <!-- Structured Data for Car Rental Business -->
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "AutoRental",
-    "name": "AvtoNik Car Rental",
-    "description": "Professional car rental service offering economy, luxury, and SUV vehicles with best price guarantee and flexible pickup options.",
-    "url": "https://avtonik.com",
-    "logo": "https://avtonik.com/logo.png",
-    "image": "https://avtonik.com/og-image.jpg",
-    "telephone": "+995-598-898-444",
-    "address": {
-      "@type": "PostalAddress",
-      "addressCountry": "GE",
-      "addressRegion": "Georgia"
-    },
-    "geo": {
-      "@type": "GeoCoordinates",
-      "latitude": "42.3154",
-      "longitude": "43.3569"
-    },
-    "openingHours": "Mo-Su 00:00-23:59",
-    "priceRange": "$30-$200",
-    "serviceArea": {
-      "@type": "Country",
-      "name": "Georgia"
-    },
-    "hasOfferCatalog": {
-      "@type": "OfferCatalog",
-      "name": "Car Rental Services",
-      "itemListElement": [
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "Service",
-            "name": "Economy Car Rental",
-            "description": "Affordable economy cars for daily rental"
-          }
-        },
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "Service",
-            "name": "Luxury Car Rental",
-            "description": "Premium luxury vehicles for special occasions"
-          }
-        },
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "Service",
-            "name": "SUV Rental",
-            "description": "Spacious SUVs perfect for family trips"
-          }
+{
+  "@context": "https://schema.org",
+  "@type": "AutoRental",
+  "name": "AvtoNik Car Rental",
+  "description": "Professional car rental service offering economy, luxury, and SUV vehicles with best price guarantee and flexible pickup options.",
+  "url": "https://avtonik.com",
+  "logo": "https://avtonik.com/logo.png",
+  "image": "https://avtonik.com/og-image.jpg",
+  "telephone": "+995-598-898-444",
+  "address": {
+    "@type": "PostalAddress",
+    "addressCountry": "GE",
+    "addressRegion": "Georgia"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": "42.3154",
+    "longitude": "43.3569"
+  },
+  "openingHours": "Mo-Su 00:00-23:59",
+  "priceRange": "$30-$200",
+  "serviceArea": {
+    "@type": "Country",
+    "name": "Georgia"
+  },
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Car Rental Services",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Economy Car Rental",
+          "description": "Affordable economy cars for daily rental"
         }
-      ]
-    },
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Luxury Car Rental",
+          "description": "Premium luxury vehicles for special occasions"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "SUV Rental",
+          "description": "Spacious SUVs perfect for family trips"
+        }
+      }
+    ]
   }
-  </script>
+}
+</script>
+
   
   <!-- Google reCAPTCHA -->
   <script src="https://www.google.com/recaptcha/api.js?render=YOUR_RECAPTCHA_SITE_KEY"></script>
