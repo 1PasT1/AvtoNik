@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Instagram, Phone } from "lucide-react";
+import { Facebook, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface FooterProps {
@@ -40,13 +40,13 @@ export function Footer({ language }: FooterProps) {
             </a>
 
             <a
-              href="https://www.instagram.com/avtonikrental/"
+              href="https://www.facebook.com/profile.php?id=61581156422826"
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 rounded-full hover:bg-gray-200 transition-colors duration-200"
             >
-              <Instagram className="h-8 w-8 text-gray-800" />
-              <span className="sr-only">Instagram</span>
+              <Facebook className="h-8 w-8 text-gray-800" />
+              <span className="sr-only">Facebook</span>
             </a>
           </div>
         </div>
