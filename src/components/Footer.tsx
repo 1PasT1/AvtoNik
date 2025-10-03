@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Instagram } from "lucide-react";
+import { Instagram, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface FooterProps {
@@ -30,15 +30,25 @@ export function Footer({ language }: FooterProps) {
             </p>
           </div>
 
-          <a
-            href="https://www.instagram.com/avtonikrental/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 md:mt-0 p-2 rounded-full hover:bg-gray-200 transition-colors duration-200"
-          >
-            <Instagram className="h-8 w-8 text-gray-800" />
-            <span className="sr-only">Instagram</span>
-          </a>
+          <div className="flex flex-col items-center md:items-end space-y-2">
+            <a
+              href="tel:+995511436343"
+              className="flex items-center text-gray-800 hover:text-gray-900 transition-colors duration-200"
+            >
+              <Phone className="h-5 w-5 mr-2" />
+              <span>511 43 63 43</span>
+            </a>
+
+            <a
+              href="https://www.instagram.com/avtonikrental/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-full hover:bg-gray-200 transition-colors duration-200"
+            >
+              <Instagram className="h-8 w-8 text-gray-800" />
+              <span className="sr-only">Instagram</span>
+            </a>
+          </div>
         </div>
 
         <div className="mt-8 pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center">
