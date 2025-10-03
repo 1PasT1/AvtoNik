@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Facebook, Phone } from "lucide-react";
+import { Facebook, Phone, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface FooterProps {
@@ -31,6 +31,7 @@ export function Footer({ language }: FooterProps) {
           </div>
 
           <div className="flex flex-col items-center md:items-end space-y-2">
+            {/* Phone */}
             <a
               href="tel:+995511436343"
               className="flex items-center text-gray-800 hover:text-gray-900 transition-colors duration-200"
@@ -39,6 +40,18 @@ export function Footer({ language }: FooterProps) {
               <span>511 43 63 43</span>
             </a>
 
+            {/* Address */}
+            <a
+              href="https://maps.google.com/?q=Batumi,+Grigol+Lortkipanidze+Street+N32,+814"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center text-gray-800 hover:text-gray-900 transition-colors duration-200"
+            >
+              <MapPin className="h-5 w-5 mr-2" />
+              <span>Batumi, Grigol Lortkipanidze St. N32, 814</span>
+            </a>
+
+            {/* Facebook */}
             <a
               href="https://www.facebook.com/profile.php?id=61581156422826"
               target="_blank"
