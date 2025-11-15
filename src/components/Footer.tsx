@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Facebook, Phone, MapPin } from "lucide-react";
+import { Facebook, Phone, MapPin, Instagram, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface FooterProps {
@@ -26,11 +26,12 @@ export function Footer({ language }: FooterProps) {
             <p className="text-sm text-gray-600 mt-2 max-w-md mx-auto md:mx-0">
               {language === "English"
                 ? "Thank you for choosing AvtoNik! We're committed to providing exceptional service and value. Drive safely and enjoy your journey!"
-                : "Спасибо, что выбрали AvtoNik! Мы стремимся предоставить исключительный сервис и ценность. Безопасной поездки и приятного путешествия!"}
+                : "Спасибо, что выбрали AvтоNik! Мы стремимся предоставить исключительный сервис и ценность. Безопасной поездки и приятного путешествия!"}
             </p>
           </div>
 
           <div className="flex flex-col items-center md:items-end space-y-2">
+
             {/* Phone */}
             <a
               href="tel:+995511436343"
@@ -60,6 +61,28 @@ export function Footer({ language }: FooterProps) {
             >
               <Facebook className="h-8 w-8 text-gray-800" />
               <span className="sr-only">Facebook</span>
+            </a>
+
+            {/* Instagram */}
+            <a
+              href="https://www.instagram.com/autonikrentals"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-full hover:bg-gray-200 transition-colors duration-200"
+            >
+              <Instagram className="h-8 w-8 text-gray-800" />
+              <span className="sr-only">Instagram</span>
+            </a>
+
+            {/* WhatsApp */}
+            <a
+              href="https://wa.me/995511436343"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-full hover:bg-gray-200 transition-colors duration-200"
+            >
+              <MessageCircle className="h-8 w-8 text-gray-800" />
+              <span className="sr-only">WhatsApp</span>
             </a>
           </div>
         </div>
