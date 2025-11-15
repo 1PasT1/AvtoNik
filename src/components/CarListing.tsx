@@ -440,7 +440,7 @@ export function CarListing({
                   </div>
                   <CardContent className="p-6">
                     <h3 className="text-2xl font-bold mb-4">{car.name}</h3>
-
+                    <p style={{ color: "red", fontSize: "20px" }}>DEBUG: USING NEW FILE</p>
                     {/* ⭐ REPLACED PRICE BLOCK ⭐ */}
                     <div className="mb-6 text-lg font-semibold space-y-1">
                       <p>
