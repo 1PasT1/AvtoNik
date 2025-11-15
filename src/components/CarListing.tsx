@@ -54,6 +54,7 @@ export function CarListing({
   const [carImageIndices, setCarImageIndices] = useState<{
     [key: string]: number;
   }>({});
+
   useEffect(() => {
     if (!isLoading) {
       const sortedCars = sortCars(initialCars, sortBy);
@@ -439,9 +440,39 @@ export function CarListing({
                   </div>
                   <CardContent className="p-6">
                     <h3 className="text-2xl font-bold mb-4">{car.name}</h3>
-                    <p className="text-3xl font-bold text-orange-500 mb-6">
-                      ${car.price}/{language === "English" ? "day" : "день"}
-                    </p>
+
+                    {/* ⭐ REPLACED PRICE BLOCK ⭐ */}
+                    <div className="mb-6 text-lg font-semibold space-y-1">
+                      <p>
+                        <span className="font-bold text-orange-500">
+                          1–3 days:
+                        </span>{" "}
+                        ${car.price_1_3}
+                      </p>
+
+                      <p>
+                        <span className="font-bold text-orange-500">
+                          4–7 days:
+                        </span>{" "}
+                        ${car.price_4_7}
+                      </p>
+
+                      <p>
+                        <span className="font-bold text-orange-500">
+                          8–30 days:
+                        </span>{" "}
+                        ${car.price_8_30}
+                      </p>
+
+                      <p>
+                        <span className="font-bold text-orange-500">
+                          30+ days:
+                        </span>{" "}
+                        ${car.price_30_plus}
+                      </p>
+                    </div>
+                    {/* ⭐ END PRICE BLOCK ⭐ */}
+
                     <div className="grid grid-cols-2 gap-y-4">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Car className="h-5 w-5" />
