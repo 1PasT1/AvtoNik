@@ -441,37 +441,43 @@ export function CarListing({
                   <CardContent className="p-6">
                     <h3 className="text-2xl font-bold mb-4">{car.name}</h3>
                     <p style={{ color: "red", fontSize: "20px" }}>DEBUG: USING NEW FILE</p>
-                    {/* ⭐ REPLACED PRICE BLOCK ⭐ */}
-                    <div className="mb-6 text-lg font-semibold space-y-1">
-                      <p>
-                        <span className="font-bold text-orange-500">
-                          1–3 days:
-                        </span>{" "}
-                        ${car.price_1_3}
-                      </p>
+                   {/* ⭐ PRICE BLOCK (NEW FORMAT) ⭐ */}
+<div className="mb-6 space-y-2">
 
-                      <p>
-                        <span className="font-bold text-orange-500">
-                          4–7 days:
-                        </span>{" "}
-                        ${car.price_4_7}
-                      </p>
+  {/* 1–3 days (BIG PRICE LIKE IN YOUR DESIGN) */}
+  <p className="text-2xl font-extrabold text-orange-500">
+    ${car.price_1_3}
+    <span className="ml-1 text-base font-semibold text-gray-700">
+      / 1–3 days
+    </span>
+  </p>
 
-                      <p>
-                        <span className="font-bold text-orange-500">
-                          8–30 days:
-                        </span>{" "}
-                        ${car.price_8_30}
-                      </p>
+  {/* 4–7 days */}
+  <p className="text-lg font-semibold text-gray-900">
+    ${car.price_4_7}
+    <span className="ml-1 text-sm text-gray-600">
+      / 4–7 days
+    </span>
+  </p>
 
-                      <p>
-                        <span className="font-bold text-orange-500">
-                          30+ days:
-                        </span>{" "}
-                        ${car.price_30_plus}
-                      </p>
-                    </div>
-                    {/* ⭐ END PRICE BLOCK ⭐ */}
+  {/* 8–30 days */}
+  <p className="text-lg font-semibold text-gray-900">
+    ${car.price_8_30}
+    <span className="ml-1 text-sm text-gray-600">
+      / 8–30 days
+    </span>
+  </p>
+
+  {/* 30+ days */}
+  <p className="text-lg font-semibold text-gray-900">
+    ${car.price_30_plus}
+    <span className="ml-1 text-sm text-gray-600">
+      / 30+ days
+    </span>
+  </p>
+
+</div>
+{/* ⭐ END PRICE BLOCK ⭐ */}
 
                     <div className="grid grid-cols-2 gap-y-4">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
