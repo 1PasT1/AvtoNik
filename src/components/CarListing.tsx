@@ -442,6 +442,7 @@ export function CarListing({
                     <h3 className="text-2xl font-bold mb-4">{car.name}</h3>
                     <p style={{ color: "red", fontSize: "20px" }}>DEBUG: USING NEW FILE</p>
                    {/* ⭐ PRICE BLOCK (NEW FORMAT) ⭐ */}
+                    <pre className="text-xs">{JSON.stringify(car, null, 2)}</pre>
 <div className="mb-6 space-y-2">
 
   {/* 1–3 days (BIG PRICE LIKE IN YOUR DESIGN) */}
