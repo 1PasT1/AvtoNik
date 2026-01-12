@@ -174,10 +174,6 @@ export function CarListing({
     <Card className="overflow-hidden">
       <Skeleton className="h-48 w-full" />
       <CardContent className="p-6">
-        {/* DEBUG — Show full car object */}
-<pre className="text-[10px] bg-gray-100 p-2 rounded overflow-auto">
-  {JSON.stringify(car, null, 2)}
-</pre>
 
         <Skeleton className="h-6 w-3/4 mb-2" />
         <Skeleton className="h-4 w-1/2 mb-4" />
