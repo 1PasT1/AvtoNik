@@ -3,10 +3,10 @@ export interface Car {
   name: string;
   price: number;
 
-  price_1_3: number;
-  price_4_7: number;
-  price_8_30: number;
-  price_30_plus: number;
+  price_1_3?: number;
+  price_4_7?: number;
+  price_8_30?: number;
+  price_30_plus?: number;
 
   image: string;
   category: string;
