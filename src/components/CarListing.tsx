@@ -154,7 +154,7 @@ export function CarListing({
     if (isFilterApplied) {
       setHasFilterChanges(true);
     }
-  }, [filters]);
+  }, [filters, isFilterApplied]);
 
   const handleRentNow = (carId: string) => {
     navigate(`/cars/${carId}`);
@@ -174,7 +174,6 @@ export function CarListing({
     <Card className="overflow-hidden">
       <Skeleton className="h-48 w-full" />
       <CardContent className="p-6">
-
         <Skeleton className="h-6 w-3/4 mb-2" />
         <Skeleton className="h-4 w-1/2 mb-4" />
         <div className="space-y-2">
@@ -306,7 +305,9 @@ export function CarListing({
 
           <Select
             value={filters.vehicleClass}
-            onValueChange={(value) => handleFilterChange("vehicleClass", value)}
+            onValueChange={(value) =>
+              handleFilterChange("vehicleClass", value)
+            }
           >
             <SelectTrigger>
               <SelectValue
@@ -356,9 +357,7 @@ export function CarListing({
           <Select value={sortBy} onValueChange={handleSort}>
             <SelectTrigger className="w-[180px]">
               <SelectValue
-                placeholder={
-                  language === "English" ? "Sort by" : "Сортировать по"
-                }
+                placeholder={language === "English" ? "Sort by" : "Сортировать"}
               />
             </SelectTrigger>
             <SelectContent>
@@ -377,132 +376,151 @@ export function CarListing({
         </div>
 
         <div ref={listingRef} className="h-1" />
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {isLoading
             ? Array(carsPerPage)
                 .fill(0)
                 .map((_, index) => <CarSkeleton key={index} />)
-            : currentCars.map((car) => (
-              const p13 = typeof car.price_1_3 === "number" ? car.price_1_3 : car.price;
-              const p47 = typeof car.price_4_7 === "number" ? car.price_4_7 : car.price;
-             const p830 =typeof car.price_8_30 === "number" ? car.price_8_30 : car.price;
-               const p30p =  typeof car.price_30_plus === "number" ? car.price_30_plus : car.price;
+            : currentCars.map((car) => {
+                const p13 =
+                  typeof car.price_1_3 === "number" ? car.price_1_3 : car.price;
+                const p47 =
+                  typeof car.price_4_7 === "number" ? car.price_4_7 : car.price;
+                const p830 =
+                  typeof car.price_8_30 === "number"
+                    ? car.price_8_30
+                    : car.price;
+                const p30p =
+                  typeof car.price_30_plus === "number"
+                    ? car.price_30_plus
+                    : car.price;
 
-                <Card key={car.id} className="overflow-hidden">
-                  <div className="aspect-video bg-muted flex items-center justify-center relative group">
-                    <img
-                      src={
-                        car.gallery &&
+                return (
+                  <Card key={car.id} className="overflow-hidden">
+                    <div className="aspect-video bg-muted flex items-center justify-center relative group">
+                      <img
+                        src={
+                          car.gallery &&
+                          Array.isArray(car.gallery) &&
+                          car.gallery.length > 0
+                            ? car.gallery[carImageIndices[car.id] || 0]
+                            : car.image
+                        }
+                        alt={car.name}
+                        className="w-full h-full object-cover"
+                      />
+
+                      {car.gallery &&
                         Array.isArray(car.gallery) &&
-                        car.gallery.length > 0
-                          ? car.gallery[carImageIndices[car.id] || 0]
-                          : car.image
-                      }
-                      alt={car.name}
-                      className="w-full h-full object-cover"
-                    />
-                    {car.gallery &&
-                      Array.isArray(car.gallery) &&
-                      car.gallery.length > 1 && (
-                        <>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleCarImagePrev(car.id, car.gallery.length);
-                            }}
-                            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-sm transition-opacity duration-200 flex items-center justify-center"
-                            style={{ width: "16px", height: "40px" }}
-                          >
-                            <ChevronLeft className="h-3 w-3 text-gray-700" />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleCarImageNext(car.id, car.gallery.length);
-                            }}
-                            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-sm transition-opacity duration-200 flex items-center justify-center"
-                            style={{ width: "16px", height: "40px" }}
-                          >
-                            <ChevronRight className="h-3 w-3 text-gray-700" />
-                          </button>
-                          {car.gallery &&
-                            Array.isArray(car.gallery) &&
-                            car.gallery.length > 1 && (
-                              <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1 transition-opacity duration-200">
-                                {car.gallery.map((_, index) => (
-                                  <div
-                                    key={index}
-                                    className={`w-1.5 h-1.5 rounded-full ${
-                                      index === (carImageIndices[car.id] || 0)
-                                        ? "bg-white"
-                                        : "bg-white/50"
-                                    }`}
-                                  />
-                                ))}
-                              </div>
-                            )}
-                        </>
-                      )}
-                  </div>
-                  <CardContent className="p-6">
-                    <h3 className="text-2xl font-bold mb-4">{car.name}</h3>
-                
-<div className="mb-6 space-y-2">
-  <p className="text-2xl font-extrabold text-orange-500">
-    ${car.price_1_3}
-    <span className="ml-1 text-base font-semibold text-gray-700">/ 1–3 days</span>
-  </p>
+                        car.gallery.length > 1 && (
+                          <>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCarImagePrev(car.id, car.gallery.length);
+                              }}
+                              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-sm transition-opacity duration-200 flex items-center justify-center"
+                              style={{ width: "16px", height: "40px" }}
+                            >
+                              <ChevronLeft className="h-3 w-3 text-gray-700" />
+                            </button>
 
-  <p className="text-lg font-semibold text-gray-900">
-    ${car.price_4_7}
-    <span className="ml-1 text-sm text-gray-600">/ 4–7 days</span>
-  </p>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCarImageNext(car.id, car.gallery.length);
+                              }}
+                              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-sm transition-opacity duration-200 flex items-center justify-center"
+                              style={{ width: "16px", height: "40px" }}
+                            >
+                              <ChevronRight className="h-3 w-3 text-gray-700" />
+                            </button>
 
-  <p className="text-lg font-semibold text-gray-900">
-    ${car.price_8_30}
-    <span className="ml-1 text-sm text-gray-600">/ 8–30 days</span>
-  </p>
-
-  <p className="text-lg font-semibold text-gray-900">
-    ${car.price_30_plus}
-    <span className="ml-1 text-sm text-gray-600">/ 30+ days</span>
-  </p>
-</div>
-{/* ⭐ END PRICE BLOCK ⭐ */}
-
-                    <div className="grid grid-cols-2 gap-y-4">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Car className="h-5 w-5" />
-                        <span>{car.category}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <GearShift className="h-5 w-5" />
-                        <span>{car.transmission}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Fuel className="h-5 w-5" />
-                        <span>{car.fuelType}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Users className="h-5 w-5" />
-                        <span>{car.seats} seats</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Calendar className="h-5 w-5" />
-                        <span>{car.year}</span>
-                      </div>
+                            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-1 transition-opacity duration-200">
+                              {car.gallery.map((_, index) => (
+                                <div
+                                  key={index}
+                                  className={`w-1.5 h-1.5 rounded-full ${
+                                    index === (carImageIndices[car.id] || 0)
+                                      ? "bg-white"
+                                      : "bg-white/50"
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                          </>
+                        )}
                     </div>
-                  </CardContent>
-                  <CardFooter className="p-6 pt-0">
-                    <Button
-                      className="w-full bg-black hover:bg-gray-800 text-white py-3 text-lg"
-                      onClick={() => handleRentNow(car.id.toString())}
-                    >
-                      {language === "English" ? "Rent Now" : "Арендовать"}
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
+
+                    <CardContent className="p-6">
+                      <h3 className="text-2xl font-bold mb-4">{car.name}</h3>
+
+                      <div className="mb-6 space-y-2">
+                        <p className="text-2xl font-extrabold text-orange-500">
+                          $<span>{p13}</span>
+                          <span className="ml-1 text-base font-semibold text-gray-700">
+                            / 1–3 days
+                          </span>
+                        </p>
+
+                        <p className="text-lg font-semibold text-gray-900">
+                          $<span>{p47}</span>
+                          <span className="ml-1 text-sm text-gray-600">
+                            / 4–7 days
+                          </span>
+                        </p>
+
+                        <p className="text-lg font-semibold text-gray-900">
+                          $<span>{p830}</span>
+                          <span className="ml-1 text-sm text-gray-600">
+                            / 8–30 days
+                          </span>
+                        </p>
+
+                        <p className="text-lg font-semibold text-gray-900">
+                          $<span>{p30p}</span>
+                          <span className="ml-1 text-sm text-gray-600">
+                            / 30+ days
+                          </span>
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-y-4">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Car className="h-5 w-5" />
+                          <span>{car.category}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <GearShift className="h-5 w-5" />
+                          <span>{car.transmission}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Fuel className="h-5 w-5" />
+                          <span>{car.fuelType}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Users className="h-5 w-5" />
+                          <span>{car.seats} seats</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Calendar className="h-5 w-5" />
+                          <span>{car.year}</span>
+                        </div>
+                      </div>
+                    </CardContent>
+
+                    <CardFooter className="p-6 pt-0">
+                      <Button
+                        className="w-full bg-black hover:bg-gray-800 text-white py-3 text-lg"
+                        onClick={() => handleRentNow(car.id.toString())}
+                      >
+                        {language === "English" ? "Rent Now" : "Арендовать"}
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                );
+              })}
         </div>
 
         {cars.length > 0 && (
@@ -516,6 +534,7 @@ export function CarListing({
               >
                 <ChevronsLeft className="h-4 w-4 max-xs320:h-3 max-xs320:w-3" />
               </Button>
+
               <Button
                 variant="outline"
                 onClick={() => paginate(currentPage - 1)}
@@ -524,6 +543,7 @@ export function CarListing({
               >
                 <ChevronLeft className="h-4 w-4 max-xs320:h-3 max-xs320:w-3" />
               </Button>
+
               {getPageNumbers().map((number) => (
                 <Button
                   key={number}
@@ -534,6 +554,7 @@ export function CarListing({
                   {number}
                 </Button>
               ))}
+
               <Button
                 variant="outline"
                 onClick={() => paginate(currentPage + 1)}
@@ -542,6 +563,7 @@ export function CarListing({
               >
                 <ChevronRight className="h-4 w-4 max-xs320:h-3 max-xs320:w-3" />
               </Button>
+
               <Button
                 variant="outline"
                 onClick={() => paginate(totalPages)}
