@@ -8,6 +8,7 @@ import { HomePage } from "./pages/HomePage"
 import { PrivacyPage } from "./pages/PrivacyPage"
 import { TermsPage } from "./pages/TermsPage"
 import { CarDetailPage } from "./pages/CarDetailPage"
+import ReviewsSection from "./components/ReviewsSection";
 import AOS from "aos"
 import "aos/dist/aos.css"
 
@@ -43,6 +44,7 @@ function App() {
           <Route path="/cars/:id" element={<CarDetailPage />} />
         </Routes>
       </main>
+      <ReviewsSection/>
       <Footer language={language} />
     </div>
   )
