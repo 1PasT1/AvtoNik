@@ -449,39 +449,25 @@ export function CarListing({
                    {/* ⭐ PRICE BLOCK (NEW FORMAT) ⭐ */}
                 
 <div className="mb-6 space-y-2">
-
-  {/* 1–3 days (BIG PRICE LIKE IN YOUR DESIGN) */}
   <p className="text-2xl font-extrabold text-orange-500">
     ${car.price_1_3}
-    <span className="ml-1 text-base font-semibold text-gray-700">
-      / 1–3 days
-    </span>
+    <span className="ml-1 text-base font-semibold text-gray-700">/ 1–3 days</span>
   </p>
 
-  {/* 4–7 days */}
   <p className="text-lg font-semibold text-gray-900">
     ${car.price_4_7}
-    <span className="ml-1 text-sm text-gray-600">
-      / 4–7 days
-    </span>
+    <span className="ml-1 text-sm text-gray-600">/ 4–7 days</span>
   </p>
 
-  {/* 8–30 days */}
   <p className="text-lg font-semibold text-gray-900">
     ${car.price_8_30}
-    <span className="ml-1 text-sm text-gray-600">
-      / 8–30 days
-    </span>
+    <span className="ml-1 text-sm text-gray-600">/ 8–30 days</span>
   </p>
 
-  {/* 30+ days */}
   <p className="text-lg font-semibold text-gray-900">
     ${car.price_30_plus}
-    <span className="ml-1 text-sm text-gray-600">
-      / 30+ days
-    </span>
+    <span className="ml-1 text-sm text-gray-600">/ 30+ days</span>
   </p>
-
 </div>
 {/* ⭐ END PRICE BLOCK ⭐ */}
 
