@@ -383,6 +383,11 @@ export function CarListing({
                 .fill(0)
                 .map((_, index) => <CarSkeleton key={index} />)
             : currentCars.map((car) => (
+              const p13 = typeof car.price_1_3 === "number" ? car.price_1_3 : car.price;
+              const p47 = typeof car.price_4_7 === "number" ? car.price_4_7 : car.price;
+             const p830 =typeof car.price_8_30 === "number" ? car.price_8_30 : car.price;
+               const p30p =  typeof car.price_30_plus === "number" ? car.price_30_plus : car.price;
+
                 <Card key={car.id} className="overflow-hidden">
                   <div className="aspect-video bg-muted flex items-center justify-center relative group">
                     <img
