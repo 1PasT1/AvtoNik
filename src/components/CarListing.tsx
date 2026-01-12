@@ -383,19 +383,19 @@ export function CarListing({
                 .fill(0)
                 .map((_, index) => <CarSkeleton key={index} />)
             : currentCars.map((car) => {
-                const p13 =
-                  typeof car.price_1_3 === "number" ? car.price_1_3 : car.price;
-                const p47 =
-                  typeof car.price_4_7 === "number" ? car.price_4_7 : car.price;
-                const p830 =
-                  typeof car.price_8_30 === "number"
-                    ? car.price_8_30
-                    : car.price;
-                const p30p =
-                  typeof car.price_30_plus === "number"
-                    ? car.price_30_plus
-                    : car.price;
+          const toNumber = (v: unknown, fallback: number) => {
+  if (typeof v === "number" && Number.isFinite(v)) return v;
+  if (typeof v === "string") {
+    const n = Number(v);
+    if (Number.isFinite(n)) return n;
+  }
+  return fallback;
+};
 
+const p13 = toNumber(car.price_1_3, car.price);
+const p47 = toNumber(car.price_4_7, car.price);
+const p830 = toNumber(car.price_8_30, car.price);
+const p30p = toNumber(car.price_30_plus, car.price);
                 return (
                   <Card key={car.id} className="overflow-hidden">
                     <div className="aspect-video bg-muted flex items-center justify-center relative group">
