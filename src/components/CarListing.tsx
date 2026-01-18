@@ -79,8 +79,11 @@ export function CarListing({
 
   const sortCars = (carsToSort: CarType[], sortType: string) => {
     return [...carsToSort].sort((a, b) => {
-      if (sortType === "price-low") return a.price - b.price;
-      if (sortType === "price-high") return b.price - a.price;
+      const aPrice = getBaseDailyPrice(a);
+      const bPrice = getBaseDailyPrice(b);
+
+      if (sortType === "price-low") return aPrice - bPrice;
+      if (sortType === "price-high") return bPrice - aPrice;
       return 0;
     });
   };
@@ -112,14 +115,12 @@ export function CarListing({
       );
     }
     if (filters.priceFrom) {
-      filteredCars = filteredCars.filter(
-        (car) => car.price >= parseInt(filters.priceFrom)
-      );
+      const min = parseInt(filters.priceFrom);
+      filteredCars = filteredCars.filter((car) => getBaseDailyPrice(car) >= min);
     }
     if (filters.priceTo) {
-      filteredCars = filteredCars.filter(
-        (car) => car.price <= parseInt(filters.priceTo)
-      );
+      const max = parseInt(filters.priceTo);
+      filteredCars = filteredCars.filter((car) => getBaseDailyPrice(car) <= max);
     }
     if (filters.vehicleClass) {
       filteredCars = filteredCars.filter(
@@ -224,6 +225,37 @@ export function CarListing({
         : 1,
     }));
   };
+
+  // ---- Pricing helpers (algorithmic tiers) ----
+  function toNumber(v: unknown, fallback = 0): number {
+    if (typeof v === "number" && Number.isFinite(v)) return v;
+    if (typeof v === "string") {
+      const n = Number(v);
+      if (Number.isFinite(n)) return n;
+    }
+    return fallback;
+  }
+
+  function getBaseDailyPrice(car: CarType): number {
+    return toNumber((car as any).price, 0);
+  }
+
+  function getTierMultipliers(categoryRaw: unknown) {
+    const category = String(categoryRaw ?? "").toLowerCase();
+
+    // Slightly different discounts by class (optional "smart" feel).
+    if (category === "luxury") return { p47: 0.95, p830: 0.9, p30p: 0.82 };
+    if (category === "suv") return { p47: 0.94, p830: 0.88, p30p: 0.8 };
+
+    // Default
+    return { p47: 0.92, p830: 0.85, p30p: 0.75 };
+  }
+
+  function roundPrice(n: number) {
+    // Choose your vibe:
+    // return Math.ceil(n);   // always round up
+    return Math.round(n); // normal rounding
+  }
 
   return (
     <div className="py-8 sm:py-12">
@@ -383,19 +415,14 @@ export function CarListing({
                 .fill(0)
                 .map((_, index) => <CarSkeleton key={index} />)
             : currentCars.map((car) => {
-          const toNumber = (v: unknown, fallback: number) => {
-  if (typeof v === "number" && Number.isFinite(v)) return v;
-  if (typeof v === "string") {
-    const n = Number(v);
-    if (Number.isFinite(n)) return n;
-  }
-  return fallback;
-};
+                const base = getBaseDailyPrice(car);
+                const mult = getTierMultipliers((car as any).category);
 
-const p13 = toNumber(car.price_1_3, car.price);
-const p47 = toNumber(car.price_4_7, car.price);
-const p830 = toNumber(car.price_8_30, car.price);
-const p30p = toNumber(car.price_30_plus, car.price);
+                const p13 = roundPrice(base * 1.0);
+                const p47 = roundPrice(base * mult.p47);
+                const p830 = roundPrice(base * mult.p830);
+                const p30p = roundPrice(base * mult.p30p);
+
                 return (
                   <Card key={car.id} className="overflow-hidden">
                     <div className="aspect-video bg-muted flex items-center justify-center relative group">
@@ -404,7 +431,9 @@ const p30p = toNumber(car.price_30_plus, car.price);
                           car.gallery &&
                           Array.isArray(car.gallery) &&
                           car.gallery.length > 0
-                            ? car.gallery[carImageIndices[car.id] || 0]
+                            ? car.gallery[
+                                carImageIndices[car.id as any] || 0
+                              ]
                             : car.image
                         }
                         alt={car.name}
@@ -418,7 +447,10 @@ const p30p = toNumber(car.price_30_plus, car.price);
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleCarImagePrev(car.id, car.gallery.length);
+                                handleCarImagePrev(
+                                  String(car.id),
+                                  car.gallery.length
+                                );
                               }}
                               className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-sm transition-opacity duration-200 flex items-center justify-center"
                               style={{ width: "16px", height: "40px" }}
@@ -429,7 +461,10 @@ const p30p = toNumber(car.price_30_plus, car.price);
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleCarImageNext(car.id, car.gallery.length);
+                                handleCarImageNext(
+                                  String(car.id),
+                                  car.gallery.length
+                                );
                               }}
                               className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-sm transition-opacity duration-200 flex items-center justify-center"
                               style={{ width: "16px", height: "40px" }}
@@ -442,7 +477,7 @@ const p30p = toNumber(car.price_30_plus, car.price);
                                 <div
                                   key={index}
                                   className={`w-1.5 h-1.5 rounded-full ${
-                                    index === (carImageIndices[car.id] || 0)
+                                    index === (carImageIndices[car.id as any] || 0)
                                       ? "bg-white"
                                       : "bg-white/50"
                                   }`}
@@ -456,18 +491,12 @@ const p30p = toNumber(car.price_30_plus, car.price);
                     <CardContent className="p-6">
                       <h3 className="text-2xl font-bold mb-4">{car.name}</h3>
 
+                      {/* Pricing shown from 30+ down to 1–3 */}
                       <div className="mb-6 space-y-2">
                         <p className="text-2xl font-extrabold text-orange-500">
-                          $<span>{p13}</span>
+                          $<span>{p30p}</span>
                           <span className="ml-1 text-base font-semibold text-gray-700">
-                            / 1–3 days
-                          </span>
-                        </p>
-
-                        <p className="text-lg font-semibold text-gray-900">
-                          $<span>{p47}</span>
-                          <span className="ml-1 text-sm text-gray-600">
-                            / 4–7 days
+                            / 30+ days
                           </span>
                         </p>
 
@@ -479,9 +508,16 @@ const p30p = toNumber(car.price_30_plus, car.price);
                         </p>
 
                         <p className="text-lg font-semibold text-gray-900">
-                          $<span>{p30p}</span>
+                          $<span>{p47}</span>
                           <span className="ml-1 text-sm text-gray-600">
-                            / 30+ days
+                            / 4–7 days
+                          </span>
+                        </p>
+
+                        <p className="text-lg font-semibold text-gray-900">
+                          $<span>{p13}</span>
+                          <span className="ml-1 text-sm text-gray-600">
+                            / 1–3 days
                           </span>
                         </p>
                       </div>
@@ -513,7 +549,7 @@ const p30p = toNumber(car.price_30_plus, car.price);
                     <CardFooter className="p-6 pt-0">
                       <Button
                         className="w-full bg-black hover:bg-gray-800 text-white py-3 text-lg"
-                        onClick={() => handleRentNow(car.id.toString())}
+                        onClick={() => handleRentNow(String(car.id))}
                       >
                         {language === "English" ? "Rent Now" : "Арендовать"}
                       </Button>
