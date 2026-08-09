@@ -6,6 +6,7 @@ import { WhyChooseUs } from '../components/WhyChooseUs';
 import { fetchCars } from '../utils/api';
 import { Car} from '../types/car';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { SEO } from '../components/SEO';
 
 interface HomePageProps {
   language: string;
@@ -37,7 +38,25 @@ export function HomePage({ language }: HomePageProps) {
     loadCars();
   }, [language]);
 
+  const isEn = language === 'English';
+
   return (
+    <>
+      <SEO
+        title={
+          isEn
+            ? 'Car Rental in Batumi | AvtoNik — Rent a Car in Georgia'
+            : 'Аренда авто в Батуми | AvtoNik — прокат автомобилей в Грузии'
+        }
+        description={
+          isEn
+            ? 'Rent a car in Batumi from AvtoNik. Economy, SUV and luxury cars with airport pickup, no hidden fees and instant online booking. Best price guaranteed.'
+            : 'Аренда авто в Батуми от AvtoNik. Эконом, внедорожники и премиум с подачей в аэропорт, без скрытых платежей и с онлайн-бронированием. Лучшая цена гарантирована.'
+        }
+        path="/"
+        language={language}
+      />
+
     <main className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
       <div id="home">
         <HeroSection language={language} />
@@ -58,6 +77,7 @@ export function HomePage({ language }: HomePageProps) {
         <WhyChooseUs language={language} />
       </div>
     </main>
+    </>
   );
 }
 

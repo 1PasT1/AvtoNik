@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { SEO } from '../components/SEO';
 
 interface TermsPageProps {
   language: string;
@@ -116,6 +117,18 @@ For more information or assistance, please contact Avtonik customer support or v
   };
 
   return (
+    <>
+      <SEO
+        title={language === 'English' ? 'Rental Terms & Conditions | AvtoNik Batumi' : 'Условия аренды | AvtoNik Батуми'}
+        description={
+          language === 'English'
+            ? 'AvtoNik rental terms: driver requirements, deposit, rental periods, late returns, insurance and vehicle use in Batumi, Georgia.'
+            : 'Условия аренды AvtoNik: требования к водителю, депозит, сроки аренды, штрафы, страховка и правила использования автомобиля в Батуми.'
+        }
+        path="/terms"
+        language={language}
+      />
+
     <main className="min-h-screen bg-gradient-to-b from-orange-50 to-white pt-20">
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold mb-8">
@@ -124,5 +137,6 @@ For more information or assistance, please contact Avtonik customer support or v
         <pre className="whitespace-pre-wrap">{content[language as keyof typeof content].content}</pre>
       </div>
     </main>
+    </>
   );
 }

@@ -11,6 +11,8 @@ interface InquiryFormData {
   message?: string;
   totalPrice: number;
   bookingId?: number;
+  pickupLocation?: string | null;
+  pickupFee?: number;
 }
 
 /** A block of days that is already taken. Both ends are inclusive. */
@@ -29,7 +31,31 @@ export interface BookingRequest {
   pickupDate: string;
   dropoffDate: string;
   message?: string;
-  totalPrice: number;
+  /** Car cost only. The server adds the pickup fee from its own records. */
+  rentalPrice: number;
+  pickupLocationId?: number | null;
+}
+
+/** A place the customer can collect the car, configured in the admin panel. */
+export interface PickupLocation {
+  id: number;
+  name: string;
+  name_ru: string | null;
+  name_ka: string | null;
+  category: 'airport' | 'city';
+  price: number;
+  active: boolean;
+  sort_order: number;
+}
+
+/** Pick the right language for a location name, falling back to English. */
+export function pickupLocationName(
+  location: PickupLocation,
+  language: string
+): string {
+  if (language === 'Русский' && location.name_ru) return location.name_ru;
+  if (language === 'ქართული' && location.name_ka) return location.name_ka;
+  return location.name;
 }
 
 export interface BookingResponse {
@@ -37,6 +63,9 @@ export interface BookingResponse {
   status: 'pending' | 'approved' | 'rejected' | 'cancelled';
   carName?: string;
   duplicate?: boolean;
+  pickupLocation?: string | null;
+  pickupFee?: number;
+  totalPrice?: number;
 }
 
 /** Thrown when the dates were taken between page load and submit. */
@@ -136,6 +165,31 @@ export async function fetchBookedDates(carId: string): Promise<BookedRange[]> {
     }));
   } catch (error) {
     console.error('Error fetching booked dates:', error);
+    return [];
+  }
+}
+
+/**
+ * Pickup locations the customer can choose from, already filtered to the
+ * ones switched on in the admin panel.
+ *
+ * Returns an empty list on failure rather than throwing: a broken lookup
+ * should leave the booking form usable, not block a sale.
+ */
+export async function fetchPickupLocations(): Promise<PickupLocation[]> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/pickup-locations`);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+    const data = await response.json();
+    if (!Array.isArray(data)) return [];
+
+    return data.map((l) => ({
+      ...l,
+      price: Number(l.price) || 0,
+    })) as PickupLocation[];
+  } catch (error) {
+    console.error('Error fetching pickup locations:', error);
     return [];
   }
 }

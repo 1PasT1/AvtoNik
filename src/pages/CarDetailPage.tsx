@@ -3,7 +3,6 @@
 import type React from "react";
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -46,7 +45,10 @@ import {
   createBooking,
   toDateOnly,
   DatesUnavailableError,
+  fetchPickupLocations,
+  pickupLocationName,
   type BookedRange,
+  type PickupLocation,
 } from "@/utils/api";
 import { SEO } from "@/components/SEO"
 
@@ -168,7 +170,20 @@ const DEFAULT_COUNTRY_ISO = "GE";
 const dialCodeFor = (iso: string): string =>
   countryCodes.find((c) => c.iso === iso)?.code ?? "+995";
 
-export const CarDetailPage: React.FC = () => {
+interface CarDetailPageProps {
+  language: string;
+}
+
+/*
+ * language now comes from App rather than being local state here. This page
+ * used to render its OWN <Navbar> on top of the one App already renders, so
+ * /cars/:id shipped two navigation bars with two independent language
+ * toggles — switching one left the other showing the old language, and
+ * search engines saw the whole nav duplicated on every car page.
+ */
+export const CarDetailPage: React.FC<CarDetailPageProps> = ({
+  language,
+}) => {
   const params = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -176,8 +191,9 @@ export const CarDetailPage: React.FC = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [bookedRanges, setBookedRanges] = useState<BookedRange[]>([]);
+  const [pickupLocations, setPickupLocations] = useState<PickupLocation[]>([]);
+  const [pickupLocationId, setPickupLocationId] = useState<string>("");
   const [availabilityLoading, setAvailabilityLoading] = useState(true);
-  const [language, setLanguage] = useState("English");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -239,6 +255,37 @@ export const CarDetailPage: React.FC = () => {
       setTotalPrice(null);
     }
   }, [car, dateRange]);
+
+  // Pickup locations are configured in the admin panel, so they are fetched
+  // rather than hardcoded — prices can change without a deploy.
+  useEffect(() => {
+    let cancelled = false;
+    fetchPickupLocations().then((locations) => {
+      if (cancelled) return;
+      setPickupLocations(locations);
+
+      // Preselect the cheapest city option so the common case needs no
+      // interaction, but never silently select a paid one.
+      const freeCity = locations.find(
+        (l) => l.category === "city" && l.price === 0
+      );
+      if (freeCity) setPickupLocationId(String(freeCity.id));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const selectedPickup =
+    pickupLocations.find((l) => String(l.id) === pickupLocationId) || null;
+  const pickupFee = selectedPickup ? selectedPickup.price : 0;
+
+  // What the customer actually pays: car cost plus delivery. The server
+  // recomputes this from its own price list, so the two must agree.
+  const grandTotal = totalPrice !== null ? totalPrice + pickupFee : null;
+
+  const airportPickups = pickupLocations.filter((l) => l.category === "airport");
+  const cityPickups = pickupLocations.filter((l) => l.category === "city");
 
   const handlePrevImage = () => {
     if (!car || !car.gallery || !Array.isArray(car.gallery)) return;
@@ -364,7 +411,10 @@ export const CarDetailPage: React.FC = () => {
         pickupDate,
         dropoffDate,
         message: formData.message,
-        totalPrice: totalPrice || 0,
+        // Car cost only. The server looks the delivery fee up itself, so a
+        // tampered request can't book airport pickup for free.
+        rentalPrice: totalPrice || 0,
+        pickupLocationId: selectedPickup ? selectedPickup.id : null,
       });
 
       const inquiryData = {
@@ -376,7 +426,11 @@ export const CarDetailPage: React.FC = () => {
         dropoffdate: dropoffDate,
         carid: car?.id || "",
         message: formData.message,
-        totalPrice: totalPrice || 0,
+        // Trust the server's figure over the local one — it is what was
+        // actually recorded against the booking.
+        totalPrice: booking.totalPrice ?? grandTotal ?? 0,
+        pickupLocation: booking.pickupLocation ?? null,
+        pickupFee: booking.pickupFee ?? pickupFee,
         bookingId: booking.id,
       };
 
@@ -514,23 +568,64 @@ export const CarDetailPage: React.FC = () => {
   return (
     <>
     <SEO
-        title={car ? `${car.name} - Car Rental | AvtoNik` : "Car Details - AvtoNik"}
+        title={
+          car
+            ? `Rent ${car.name} in Batumi — $${car.price}/day | AvtoNik`
+            : "Car Details | AvtoNik Car Rental Batumi"
+        }
         description={
           car
-            ? `Rent ${car.name} for $${car.price}/day. ${car.description} Book your ${car.category} rental car online with AvtoNik.`
-            : "View car details and book your rental car with AvtoNik"
+            ? `Rent a ${car.year} ${car.name} in Batumi for $${car.price} per day. ${car.transmission}, ${car.seats} seats, ${car.fuelType}. Airport pickup available, book online with AvtoNik.`
+            : "View car details and book your rental car in Batumi with AvtoNik."
         }
-        keywords={
-          car
-            ? `${car.name}, ${car.category} rental, ${car.fuelType} car rental, ${car.transmission} car, rent ${car.name.toLowerCase()}`
-            : "car rental details, book rental car"
-        }
+        path={car ? `/cars/${car.id}` : undefined}
+        image={car?.image}
         language={language}
+        /*
+         * Per-car structured data. This is what makes a listing eligible
+         * for rich results — price and availability shown directly in the
+         * search snippet, which matters far more than any meta keyword.
+         */
+        structuredData={
+          car
+            ? {
+                "@context": "https://schema.org",
+                "@type": "Car",
+                name: car.name,
+                description:
+                  car.description ||
+                  `${car.year} ${car.name} available for rental in Batumi, Georgia.`,
+                image: car.gallery?.length ? car.gallery : car.image,
+                brand: { "@type": "Brand", name: car.name.split(" ")[0] },
+                vehicleTransmission: car.transmission,
+                fuelType: car.fuelType,
+                seatingCapacity: car.seats,
+                vehicleModelDate: String(car.year),
+                offers: {
+                  "@type": "Offer",
+                  price: String(car.price),
+                  priceCurrency: "USD",
+                  availability: "https://schema.org/InStock",
+                  url: `https://autonik.rentals/cars/${car.id}`,
+                  priceSpecification: {
+                    "@type": "UnitPriceSpecification",
+                    price: String(car.price),
+                    priceCurrency: "USD",
+                    unitCode: "DAY",
+                  },
+                  seller: {
+                    "@type": "AutoRental",
+                    name: "AvtoNik Car Rental",
+                    url: "https://autonik.rentals",
+                  },
+                },
+              }
+            : undefined
+        }
       />
       
       <style>{slideUpAnimation}</style>
       <main className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
-        <Navbar language={language} setLanguage={setLanguage} />
         <div className="container mx-auto px-4 py-16 pt-32">
           <Button variant="ghost" className="mb-4" onClick={handleBackToCars}>
             <ChevronLeft className="mr-2 h-4 w-4" />
@@ -731,6 +826,82 @@ export const CarDetailPage: React.FC = () => {
                           </p>
                         )}
                       </div>
+
+                      {/*
+                        Pickup location. Both categories live in one dropdown
+                        under their own headings, and the fee is shown next to
+                        each option so nothing is a surprise at the total.
+                        Options come from the admin panel, so the whole block
+                        hides itself if none are configured yet.
+                      */}
+                      {pickupLocations.length > 0 && (
+                        <div className="space-y-2">
+                          <Label htmlFor="pickupLocation">
+                            {language === "English"
+                              ? "Pickup location"
+                              : "Место подачи"}
+                          </Label>
+                          <Select
+                            value={pickupLocationId}
+                            onValueChange={setPickupLocationId}
+                          >
+                            <SelectTrigger id="pickupLocation" className="w-full">
+                              <SelectValue
+                                placeholder={
+                                  language === "English"
+                                    ? "Where should we deliver the car?"
+                                    : "Куда подать автомобиль?"
+                                }
+                              />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-[320px]">
+                              {airportPickups.length > 0 && (
+                                <>
+                                  <div className="px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                    {language === "English"
+                                      ? "Airport pickup"
+                                      : "Подача в аэропорт"}
+                                  </div>
+                                  {airportPickups.map((loc) => (
+                                    <SelectItem key={loc.id} value={String(loc.id)}>
+                                      {pickupLocationName(loc, language)}
+                                      <span className="ml-2 text-muted-foreground">
+                                        {loc.price > 0
+                                          ? `+$${loc.price}`
+                                          : language === "English"
+                                          ? "free"
+                                          : "бесплатно"}
+                                      </span>
+                                    </SelectItem>
+                                  ))}
+                                </>
+                              )}
+
+                              {cityPickups.length > 0 && (
+                                <>
+                                  <div className="mt-1 border-t px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                    {language === "English"
+                                      ? "City pickup"
+                                      : "Подача по городу"}
+                                  </div>
+                                  {cityPickups.map((loc) => (
+                                    <SelectItem key={loc.id} value={String(loc.id)}>
+                                      {pickupLocationName(loc, language)}
+                                      <span className="ml-2 text-muted-foreground">
+                                        {loc.price > 0
+                                          ? `+$${loc.price}`
+                                          : language === "English"
+                                          ? "free"
+                                          : "бесплатно"}
+                                      </span>
+                                    </SelectItem>
+                                  ))}
+                                </>
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
                       <div className="flex flex-wrap gap-4">
                         <div className="w-full sm:w-[calc(50%-0.5rem)] min-w-[200px]">
                           <Label htmlFor="firstName">
@@ -858,11 +1029,30 @@ export const CarDetailPage: React.FC = () => {
                         />
                       </div>
                       {totalPrice !== null && (
-                        <div className="text-lg font-semibold text-center mb-4">
-                          {language === "English"
-                            ? "Total Price:"
-                            : "Общая стоимость:"}{" "}
-                          ${totalPrice.toFixed(2)}
+                        <div className="mb-4 space-y-1 text-center">
+                          {/* Itemised only when there is a fee to explain. */}
+                          {pickupFee > 0 && (
+                            <>
+                              <div className="text-sm text-muted-foreground">
+                                {language === "English" ? "Car:" : "Автомобиль:"}{" "}
+                                ${totalPrice.toFixed(2)}
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                {selectedPickup
+                                  ? pickupLocationName(selectedPickup, language)
+                                  : language === "English"
+                                  ? "Pickup"
+                                  : "Подача"}
+                                : +${pickupFee.toFixed(2)}
+                              </div>
+                            </>
+                          )}
+                          <div className="text-lg font-semibold">
+                            {language === "English"
+                              ? "Total Price:"
+                              : "Общая стоимость:"}{" "}
+                            ${(grandTotal ?? totalPrice).toFixed(2)}
+                          </div>
                         </div>
                       )}
                       <Button
