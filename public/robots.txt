@@ -1,0 +1,12 @@
+# https://autonik.rentals/robots.txt
+# This file did not exist — /robots.txt returned 404. Crawlers still index
+# a site without one, but they cannot discover the sitemap from it, and
+# some tools treat a missing robots.txt as a configuration smell.
+
+User-agent: *
+Allow: /
+
+# Nothing here is private, but these have no search value.
+Disallow: /api/
+
+Sitemap: https://autonik.rentals/sitemap.xml
