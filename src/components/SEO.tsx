@@ -2,94 +2,131 @@
 
 import { useEffect } from "react";
 
+/**
+ * The canonical origin. Everything absolute is built from this.
+ *
+ * The old version of this file never touched the canonical tag at all, so
+ * the hardcoded `https://avtonik.com/` in index.html stayed on every route
+ * — telling Google the real page lived on a domain this site is not served
+ * from. That is what produced "Alternate page with proper canonical tag"
+ * and zero indexed pages.
+ */
+export const SITE_ORIGIN = "https://autonik.rentals";
+
 interface SEOProps {
   title?: string;
   description?: string;
-  keywords?: string;
+  /** Path only, e.g. "/cars". Defaults to the current location. */
+  path?: string;
+  image?: string;
   language?: string;
+  /** Set for pages that must never be indexed (thank-you pages, etc). */
+  noindex?: boolean;
+  /** Extra JSON-LD to publish alongside the page description. */
+  structuredData?: Record<string, unknown>;
+}
+
+const DEFAULT_TITLE =
+  "Car Rental in Batumi | AvtoNik — Rent a Car in Georgia";
+const DEFAULT_DESCRIPTION =
+  "Rent a car in Batumi from AvtoNik. Economy, SUV and luxury cars with airport pickup, no hidden fees and instant online booking.";
+
+function upsertMeta(key: string, content: string, asProperty = false) {
+  const selector = asProperty
+    ? `meta[property="${key}"]`
+    : `meta[name="${key}"]`;
+
+  let el = document.querySelector(selector) as HTMLMetaElement | null;
+  if (!el) {
+    el = document.createElement("meta");
+    el.setAttribute(asProperty ? "property" : "name", key);
+    document.head.appendChild(el);
+  }
+  el.setAttribute("content", content);
+}
+
+function upsertLink(rel: string, href: string, hreflang?: string) {
+  const selector = hreflang
+    ? `link[rel="${rel}"][hreflang="${hreflang}"]`
+    : `link[rel="${rel}"]:not([hreflang])`;
+
+  let el = document.querySelector(selector) as HTMLLinkElement | null;
+  if (!el) {
+    el = document.createElement("link");
+    el.setAttribute("rel", rel);
+    if (hreflang) el.setAttribute("hreflang", hreflang);
+    document.head.appendChild(el);
+  }
+  el.setAttribute("href", href);
 }
 
 export function SEO({
-  title = "AvtoNik - Car Rental Service | Rent Cars Online | Best Car Rental Deals",
-  description = "Rent a car with AvtoNik - Fast, easy, and affordable car rental service. Choose from economy, luxury, SUV cars. Best prices guaranteed. Book your rental car online today!",
-  keywords = "car rental, rent a car, car hire, rental cars, cheap car rental, luxury car rental, SUV rental, economy car rental, online car booking, best car rental deals, affordable car rental, long term car rental, daily car rental, car rental near me, automatic car rental, AvtoNik, rent a car Tbilisi, Georgia car hire,მანქანების ქირაობა, მანქანის ქირაობა, იაფი მანქანის ქირაობა, იქირავე მანქანა, იქირავე მანქანა დღიურად, ქირავდება მანქანა, მანქანა დღიურად, თბილისი მანქანის ქირაობა, ავტო გაქირავება, მანქანის დაქირავება, მანქანის დაჯავშნა ონლაინ,прокат автомобилей, аренда авто, аренда машины, прокат машин, аренда авто Тбилиси, аренда машины Грузия, дешёвая аренда авто, аренда внедорожников, аренда авто онлайн, аренда авто на день, аренда автомобилей в Тбилиси,alquiler de coches, renta de autos, alquilar un coche, alquiler de autos baratos, alquiler de coches de lujo, renta de SUV, renta de coches económicos, reserva de coches online, mejores ofertas de alquiler de autos,تأجير سيارات, استئجار سيارة, حجز سيارة, سيارات للإيجار, استئجار سيارة في تبليسي, تأجير سيارات فاخرة, سيارات رخيصة للإيجار, تأجير سيارات يومي, حجز سيارة اونلاين,Autovermietung, Auto mieten, günstige Autovermietung, Luxusauto mieten, SUV mieten, Mietwagen buchen, Auto mieten Tiflis, Mietwagen Georgien,location de voiture, louer une voiture, location de voitures pas chères, location de voiture de luxe, réserver une voiture en ligne, location voiture Tbilissi,noleggio auto, affittare una macchina, autonoleggio economico, auto di lusso a noleggio, noleggio SUV, prenotazione auto online, affitto auto Tbilisi,租车, 汽车租赁, 租一辆车, 豪华车租赁, 便宜租车, 格鲁吉亚租车, 第比利斯租车, 在线租车, 经济型租车,araba kiralama, araç kiralama, ucuz araba kiralama, lüks araç kiralama, SUV kiralama, Tiflis araba kiralama, Gürcistan araç kiralama, online araç rezervasyonu,कार रेंटल, कार किराए पर लें, सस्ती कार किराए पर, लक्ज़री कार किराए पर, SUV किराए पर, जॉर्जिया में कार किराए पर, त्बिलिसी कार किराया, ऑनलाइन कार बुकिंग car rental Georgia, rent a car Georgia, car hire Georgia, Tbilisi car rental, Batumi car rental, Kutaisi car rental,cheap car rental Georgia, SUV rental Georgia, luxury car rental Georgia, economy car hire Georgia, online car booking Georgia,best car rental deals Georgia, long term car rental Georgia, daily car rental Georgia, affordable car rental Georgia, automatic car rental Georgia,AvtoNik, Georgia car rental company, vehicle rental Georgia,მანქანის ქირაობა, იაფი მანქანის ქირაობა, იქირავე მანქანა, ავტო გაქირავება, თბილისი მანქანის ქირაობა,მანქანის დაჯავშნა ონლაინ, ავტომობილის დაქირავება, მანქანა დღიურად, ეკონომი მანქანის ქირაობა,аренда авто Грузия, аренда машины Тбилиси, прокат автомобилей Грузия, дешёвая аренда авто,аренда внедорожников, аренда авто онлайн, аренда автомобилей на день, прокат машин Тбилиси,alquiler de coches Georgia, renta de autos Georgia, alquiler de SUV, coches económicos, reservar coche online,تأجير سيارات جورجيا, استئجار سيارة في تبليسي, سيارات رخيصة للإيجار, حجز سيارة اونلاين,Auto mieten Georgien, Autovermietung Tiflis, SUV mieten, günstige Autovermietung,location de voiture Géorgie, louer une voiture Tbilissi, réserver une voiture en ligne,noleggio auto Georgia, affitto auto Tbilisi, auto di lusso a noleggio,Georgia car rental, rent a car near me, rent SUV Georgia, luxury car hire Tbilisi",
+  title = DEFAULT_TITLE,
+  description = DEFAULT_DESCRIPTION,
+  path,
+  image = `${SITE_ORIGIN}/og-image.jpg`,
   language = "English",
+  noindex = false,
+  structuredData,
 }: SEOProps) {
   useEffect(() => {
-    
+    // Build the canonical from a clean path: query strings and hashes
+    // create duplicate URLs that split ranking signals.
+    const cleanPath = (path ?? window.location.pathname).split(/[?#]/)[0];
+    const canonical =
+      SITE_ORIGIN + (cleanPath === "/" ? "/" : cleanPath.replace(/\/+$/, ""));
+
     document.title = title;
 
-    
-    const updateMetaTag = (
-      name: string,
-      content: string,
-      property?: string
-    ) => {
-      const selector = property
-        ? `meta[property="${property}"]`
-        : `meta[name="${name}"]`;
-      let meta = document.querySelector(selector) as HTMLMetaElement;
+    upsertMeta("description", description);
+    upsertMeta(
+      "robots",
+      noindex
+        ? "noindex, nofollow"
+        : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    );
 
-      if (!meta) {
-        meta = document.createElement("meta");
-        if (property) {
-          meta.setAttribute("property", property);
-        } else {
-          meta.setAttribute("name", name);
-        }
-        document.head.appendChild(meta);
-      }
-      meta.setAttribute("content", content);
-    };
+    upsertLink("canonical", canonical);
 
- 
-    updateMetaTag("description", description);
-    updateMetaTag("keywords", keywords);
+    upsertMeta("og:title", title, true);
+    upsertMeta("og:description", description, true);
+    upsertMeta("og:type", "website", true);
+    upsertMeta("og:url", canonical, true);
+    upsertMeta("og:image", image, true);
 
-    
-    updateMetaTag("", title, "og:title");
-    updateMetaTag("", description, "og:description");
-    updateMetaTag("", "website", "og:type");
-    updateMetaTag("", window.location.href, "og:url");
+    upsertMeta("twitter:title", title);
+    upsertMeta("twitter:description", description);
+    upsertMeta("twitter:card", "summary_large_image");
+    upsertMeta("twitter:image", image);
 
-    
-    updateMetaTag("twitter:title", title);
-    updateMetaTag("twitter:description", description);
-    updateMetaTag("twitter:card", "summary_large_image");
+    document.documentElement.lang = language === "Русский" ? "ru" : "en";
 
-    
-    document.documentElement.lang = language === "English" ? "en" : "ru";
-
-    
-    const structuredData = {
+    // Page-level JSON-LD. Replaced rather than appended, so navigating
+    // between routes does not leave stale graphs behind.
+    const graph = structuredData ?? {
       "@context": "https://schema.org",
       "@type": "WebPage",
       name: title,
-      description: description,
-      url: window.location.href,
-      inLanguage: language === "English" ? "en-US" : "ru-RU",
+      description,
+      url: canonical,
+      inLanguage: language === "Русский" ? "ru-RU" : "en-US",
       isPartOf: {
         "@type": "WebSite",
         name: "AvtoNik Car Rental",
-        url: window.location.origin,
+        url: SITE_ORIGIN,
       },
     };
 
-    
-    const existingScript = document.querySelector(
-      'script[type="application/ld+json"][data-seo]'
-    );
-    if (existingScript) {
-      existingScript.remove();
-    }
+    document
+      .querySelectorAll('script[type="application/ld+json"][data-seo]')
+      .forEach((s) => s.remove());
 
-    
     const script = document.createElement("script");
     script.type = "application/ld+json";
     script.setAttribute("data-seo", "true");
-    script.textContent = JSON.stringify(structuredData);
+    script.textContent = JSON.stringify(graph);
     document.head.appendChild(script);
-  }, [title, description, keywords, language]);
+  }, [title, description, path, image, language, noindex, structuredData]);
 
   return null;
 }
